@@ -251,6 +251,6 @@ The PRIMARY is a realistic near-term target. The SECONDARY is achievable given t
 - [Lahaie & Pennock (2007)](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/04/RankingPaper.pdf)
 - [Asker & Cantillon (2008)](https://doi.org/10.1111/j.1756-2171.2008.00004.x)
 - [Caminati et al. (2015) - AFP](https://www.isa-afp.org/entries/Vickrey_Clarke_Groves.html)
-- [Ghani, Hedges et al. (2018)](https://arxiv.org/abs/1603.04641)
+- [Ghani, Hedges et al. (2018)](https://arxiv.org/abs/1603.04641) — [Milewski on compositional game theory](https://www.youtube.com/watch?v=5Qny8YmLUzk)
 - [Hartline, Hoy & Taggart (2023)](https://arxiv.org/abs/2310.03702)
 - [Kura et al. (2026)](https://arxiv.org/abs/2601.14846)
