@@ -16,6 +16,10 @@ IntegralEfficiency.lean → GaussianOptimality.lean) is complete with zero
 sorry. This file catalogs the *surrounding* claims from the blog series
 that are not yet formalized.
 
+Empirical demonstrations of several claims (Hotelling dynamics, relocation
+fees, sniper-vs-shotgun) are in the simulation repo:
+https://github.com/kimjune01/openauction
+
 ## Roadmap
 
 ### Easy (calculus / algebra — hours)
@@ -106,6 +110,7 @@ theorem score_at_center (c : E) (b : ℝ) (σ : ℝ) (hσ : 0 < σ) :
 -- score_shotgun = log(b) - ‖c_sniper - c_shotgun‖²/σ_wide² < log(b).
 -- By continuity, the strict inequality extends to a ball around c_sniper.
 -- Use Metric.isOpen_ball and the continuous score function.
+-- Simulation: github.com/kimjune01/openauction (Hotelling dynamics)
 -- ════════════════════════════════════════════════════════════
 
 /-- A sniper (small sigma, any bid) beats a shotgun (large sigma, any bid)
@@ -128,6 +133,7 @@ theorem sniper_dominates_locally
 -- Difficulty: EASY
 -- Proof sketch: benefit - lam * dist² ≤ dist² - lam * dist² = (1 - lam) * dist².
 -- For lam ≥ 1, this is ≤ 0. Set lam_min := 1.
+-- Simulation: github.com/kimjune01/openauction (relocation fee experiments)
 -- ════════════════════════════════════════════════════════════
 
 /-- Relocation fee: quadratic penalty for moving center. -/
