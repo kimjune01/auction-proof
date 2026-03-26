@@ -258,6 +258,13 @@ theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
     This generalizes "tau has zero auction cost" from Three Levers and
     subsumes the compound filter pipeline from Axes of Exclusion.
 
+    The compound filter (axes + Mahalanobis gate) strictly generalizes
+    scalar τ: τ is the special case M = I with no axis exclusions.
+    Since each filter is optional — the publisher can always recover
+    the τ-only case by setting M = I and excluding nothing — publisher
+    welfare is weakly increasing. A rational publisher only adds filters
+    that improve their outcome.
+
     Hartline, Hoy & Taggart (2023).
     arXiv: 2310.03702 -/
 theorem tau_preserves_efficiency_among_eligible
