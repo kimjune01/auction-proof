@@ -232,7 +232,7 @@ theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
 --
 -- Three Levers defined τ as a scalar relevance floor: isotropic sphere.
 -- Axes of Exclusion replaces it with a compound filter:
---   1. Axis-aligned exclusion (Kronecker tree bitfields per axis)
+--   1. Axis-aligned exclusion (per-axis category trees with bitfield lookups)
 --   2. Learned Mahalanobis gate (diagonal M, directional τ)
 --   3. The auction runs unchanged inside the gate
 --
@@ -293,13 +293,14 @@ theorem tau_preserves_efficiency_among_eligible
     Vickrey (1961), Clarke (1971), Groves (1973).
     DOIs: 10.2307/2977633, 10.1007/BF01726210, 10.2307/1914085
 
-    See: Strategyproof.lean, `vcg_strategyproof` for the full proof. -/
+    Proved as `vcg_strategyproof` in Strategyproof.lean. Covers deviations
+    in bid, sigma, AND center (r' : Report E is universally quantified).
+    This stub is kept as a cross-reference only. -/
 theorem vcg_truthful_bidding
     {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
     (positions : ι → Position E) (trueValues : ι → Position E)
     (x : E) (i : ι) (bid' : ℝ) (hb' : 0 < bid') :
-    -- utility_i(truthful) ≥ utility_i(deviate to bid')
-    True := by  -- See vcg_strategyproof for the real theorem
+    True := by
   trivial
 
 -- ════════════════════════════════════════════════════════════
@@ -391,10 +392,9 @@ theorem competitive_exchanges_bertrand_fees
 -- ════════════════════════════════════════════════════════════
 
 set_option linter.unusedSectionVars false in
-/-- The optimal sigma for an advertiser exists and is unique when
-    value decays as a Gaussian in distance and the query distribution
-    has a density. Sigma can be learned from conversion data without
-    the advertiser setting it manually.
+/-- An optimal sigma exists for each advertiser when utility is continuous
+    on a compact interval. Sigma can be learned from conversion data
+    without the advertiser setting it manually.
 
     Standard topology: continuous function on compact set attains maximum. -/
 theorem optimal_sigma_exists

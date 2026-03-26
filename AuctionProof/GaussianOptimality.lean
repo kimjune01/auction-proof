@@ -9,10 +9,14 @@ import AuctionProof.Strategyproof
 
 ## Main result
 
-Under Gaussian valuations in continuous embedding space, the VCG
-power-diagram allocation is as efficient as any allocation can be.
-No mechanism — not just no VCG mechanism, but no mechanism whatsoever —
-can achieve higher expected social welfare.
+Under Gaussian valuations in any finite-dimensional real inner product
+space, the VCG score-argmax allocation is as efficient as any allocation
+can be. No mechanism — not just no VCG mechanism, but no allocation rule
+whatsoever — can achieve higher expected social welfare.
+
+(We call this the "power-diagram allocation" because it reduces to a power
+diagram partition when all σ_i are equal — see Auction.lean. The proof
+works for arbitrary heterogeneous σ.)
 
 ## Proof chain
 
@@ -42,6 +46,7 @@ itself (which is outside the auction's scope).
 - Groves (1973), Thm 1: efficient choice rule = argmax of values.
   DOI: https://doi.org/10.2307/1914085
 - Green & Laffont (1977), Thm 1: VCG is the *only* efficient DSIC mechanism.
+  DOI: https://doi.org/10.2307/1914237
 - Aurenhammer (1987), §2: power diagram geometry.
   DOI: https://doi.org/10.1137/0216006
 -/
