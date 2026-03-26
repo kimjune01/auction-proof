@@ -17,20 +17,22 @@ The contribution is `score_eq_log_trueVal`: showing that under truthful reportin
 | Theorem | File | What it says |
 |---------|------|-------------|
 | `score_eq_log_trueVal` | Efficiency.lean | score = log(value) under truthful reports |
-| `winner_maximizes_welfare` | Efficiency.lean | the winner has the highest value at every query point |
-| `playerUtility_decomp` | Strategyproof.lean | utility = total welfare minus a constant |
-| `welfareOthersWithout_invariant` | Strategyproof.lean | the constant doesn't depend on your report |
-| `vcg_strategyproof` | Strategyproof.lean | truthful bidding is weakly dominant |
+| `score_eq_log_reportedVal` | Efficiency.lean | score = log(reportedVal) unconditionally — key to DSIC |
+| `winner_maximizes_welfare` | Efficiency.lean | the winner has the highest true value (under allTruthful) |
+| `winner_maximizes_reportedVal` | Efficiency.lean | the winner has the highest reported value (unconditional) |
+| `vcg_dsic` | Strategyproof.lean | **truthful bidding is a dominant strategy (DSIC)** — only player i needs to be truthful |
+| `vcg_strategyproof` | Strategyproof.lean | Nash equilibrium (corollary of DSIC under allTruthful) |
 | `integral_efficiency` | IntegralEfficiency.lean | expected welfare is maximized over all allocation rules |
 | `gaussian_optimality` | GaussianOptimality.lean | no allocation beats VCG on Gaussian embeddings |
+| `gaussian_vcg_weakly_dominates` | GaussianOptimality.lean | capstone: welfare-optimal ∧ DSIC ∧ equilibrium-efficient |
 | `composed_equilibria_decompose` | OpenGame.lean | Hedges' Thm 4.3: composite Nash = component Nash |
-| `vcg_is_nash_equilibrium` | Strategyproof.lean | VCG satisfies Nash in Hedges' open game framework |
 
 ## What's assumed
 
 1. **Definitions** (Auction.lean): Gaussian scoring function, single-winner allocation, Clarke pivot payment, quasilinear utility. These define the model, not assumptions about it.
 2. **`QueryMeasure.integral_mono`** (Axioms.lean): integrals respect pointwise ≥. The sole non-definitional axiom.
-3. **`allTruthful`**: theorem hypothesis — "if everyone reports honestly." Not a global axiom.
+3. **`isTruthful`**: theorem hypothesis on DSIC — "player i reports honestly." Others can report anything.
+4. **`allTruthful`**: theorem hypothesis on efficiency — "everyone reports honestly." Needed for welfare optimality, not for incentive compatibility.
 
 That's it. No assumptions about the query distribution, embedding dimension, number of advertisers, or reserve prices. IPV, quasilinearity, and free disposal are baked into the type signatures.
 

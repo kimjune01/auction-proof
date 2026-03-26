@@ -5,41 +5,28 @@ import Mathlib.Data.Finset.Basic
 import Mathlib.Data.List.MinMax
 
 /-!
-# Auction Definitions for the VCG Development
+# Auction Definitions
 
-This file is intentionally split into three tiers.
+## Scaffolding
 
-## Tier 1: Scaffolding
-
-Standard direct-revelation mechanism-design definitions. These are textbook-level
-objects, cited at the textbook level rather than to paper-level theorems.
+Standard direct-revelation mechanism-design definitions: Report, Valuation,
+Auction, quasilinear utility.
 
 Reference:
-- Noam Nisan, Tim Roughgarden, Éva Tardos, Vijay V. Vazirani (eds.),
+- Nisan, Roughgarden, Tardos, Vazirani (eds.),
   *Algorithmic Game Theory* (2007), Chapter 9.
 
-## Tier 2: Giants
+## Our Composition
 
-Definitions that are direct transcriptions of published constructions and can be
-named honestly as such.
+Project-specific definitions that bridge the scaffolding to the Gaussian
+embedding model. These are modeling choices, not claims of direct
+transcription from published formal definitions.
 
-References:
-- Generic VCG mechanism: Nisan et al. (2007), Chapter 9; Groves (1973).
-- Power distance: Aurenhammer (1987), §2.
-  DOI: https://doi.org/10.1137/0216006
-
-## Tier 3: Our Composition
-
-Definitions that specialize or bridge the giants for this project's model.
-These are explicit modeling choices inspired by the literature, not claims that
-the code below is itself a direct transcription of a published formal definition.
-
-In particular:
-- `score`, `trueVal`, and `winner` live here.
-- `vcgPayment` implements the Clarke pivot via `winnerOnFinset` on
-  `Finset.univ.erase i` — proper exclusion of player i.
-- The connection from `score` to power diagrams is only asserted in the
-  equal-`sigma` case.
+- `score`, `trueVal`, `reportedVal`, `winner` — the scoring and allocation
+  rule.
+- `vcgPayment` — Clarke pivot using `reportedVal` (not trueVal), which is
+  what makes VCG DSIC rather than just Nash.
+- `pointwiseWelfare`, `playerUtility` — welfare and utility under the model.
 -/
 
 noncomputable section
@@ -48,7 +35,7 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
 
 -- ============================================================
--- TIER 1: SCAFFOLDING
+-- SCAFFOLDING
 -- Standard mechanism-design definitions.
 -- Reference: Nisan et al. (2007), Chapter 9.
 -- ============================================================
@@ -107,6 +94,7 @@ def Auction.withReport (auc : Auction ι E) (i : ι) (r' : Report E) : Auction �
 
 -- ============================================================
 -- OUR COMPOSITION
+-- Project-specific modeling choices.
 -- Project-specific modeling choices inspired by the literature.
 -- No claim here is a direct transcription unless stated above.
 -- ============================================================

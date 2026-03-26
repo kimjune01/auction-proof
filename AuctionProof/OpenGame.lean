@@ -48,8 +48,8 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
 
 -- ============================================================
--- TIER 2: OPEN GAME DEFINITIONS
--- Direct transcription of Ghani, Hedges et al. (2018).
+-- OPEN GAME DEFINITIONS
+-- Ghani, Hedges, Winschel & Zahn (2018).
 -- ============================================================
 
 /-- An open game in the sense of Ghani, Hedges, Winschel & Zahn (2018).
@@ -127,7 +127,7 @@ def OpenGame.par
     H.bestResponse x₂ (fun y₂ => (k (G.play s₁ x₁, y₂)).2) s₂
 
 -- ============================================================
--- TIER 3: VCG AUCTION AS AN OPEN GAME
+-- VCG AUCTION AS AN OPEN GAME
 -- ============================================================
 
 /-- The VCG power-diagram auction as an open game.
