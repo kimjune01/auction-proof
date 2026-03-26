@@ -305,54 +305,72 @@ theorem vcg_truthful_bidding
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-08: Transparency Is Irreversible
 -- https://june.kim/transparency-is-irreversible
--- "Public sigma reduces overbidding."
 --
--- Difficulty: HARD
--- Requires affiliated values model (lattice-theoretic affiliation on ℝⁿ),
--- conditional expectations, and the linkage principle machinery.
--- Beyond what QueryMeasure provides — needs real probability theory.
+-- Two independent claims:
 --
--- Milgrom & Weber (1982), Theorem 15.
--- DOI: https://doi.org/10.2307/1911865
+-- 1. TRANSPARENT MARKETS (Akerlof 1970)
+--    Opaque auction → advertisers can't verify fairness → defensive
+--    bidding → high-value advertisers leave → adverse selection →
+--    lemon pricing. Transparency (attested VCG, public positions)
+--    resolves the information asymmetry → full participation →
+--    higher welfare. This is about a single exchange's information
+--    structure. Independent of whether competitors exist.
+--
+--    Note: under our IPV model, the linkage principle (Milgrom &
+--    Weber 1982) is trivially satisfied — there's no winner's curse
+--    with independent private values. The real transparency benefit
+--    is resolving adverse selection about the *mechanism*, not about
+--    other bidders' values.
+--
+--    Akerlof (1970), "The Market for 'Lemons'," QJE 84(3):488-500.
+--    DOI: https://doi.org/10.2307/1879431
+--
+-- 2. COMPETITIVE EXCHANGES (Bertrand)
+--    Multiple exchanges, portable positions (market-position.json),
+--    switching cost ε. Fees converge to marginal cost + ε. This is
+--    about market structure across exchanges. Independent of whether
+--    any single exchange is transparent (opaque exchanges still
+--    undercut each other, just at lower equilibrium welfare).
+--
+--    Bertrand (1883); Tirole, Theory of Industrial Organization, Ch. 5.
+--
+-- The two compound: transparency resolves adverse selection (1),
+-- portability enables switching that drives Bertrand competition (2).
+-- But they're independent claims with independent formalizations.
 -- ════════════════════════════════════════════════════════════
 
-/-- Public information weakly reduces expected payments (linkage principle).
-    When advertiser positions are common knowledge, the winner's curse
-    is reduced and defensive overbidding decreases.
+/-- Transparent markets resolve adverse selection.
 
-    Milgrom & Weber (1982), Theorem 15.
-    DOI: https://doi.org/10.2307/1911865 -/
-theorem public_info_reduces_payment
+    An opaque exchange is a lemons market (Akerlof 1970): advertisers
+    can't verify the auction mechanism is fair, so they discount bids.
+    High-value advertisers exit, welfare degrades. A transparent exchange
+    (attested VCG, public positions) eliminates the information asymmetry.
+
+    Placeholder — formalization requires modeling advertiser beliefs
+    about mechanism fairness, which is outside the current VCG framework.
+
+    Akerlof (1970), QJE 84(3):488-500.
+    DOI: https://doi.org/10.2307/1879431 -/
+theorem transparent_market_resolves_adverse_selection
     {ι : Type*} [Fintype ι]
-    -- In the affiliated values model:
-    -- E[payment | public sigma] ≤ E[payment | private sigma]
-    : True := by  -- placeholder: needs probability/expectation framework
+    : True := by  -- placeholder: needs mechanism-belief model
   sorry
 
--- ════════════════════════════════════════════════════════════
--- 2026-03-08: Transparency Is Irreversible
--- https://june.kim/transparency-is-irreversible
--- "Exchange fees converge to epsilon-Nash near marginal cost."
---
--- Difficulty: HARD
--- Requires repeated game / Bertrand competition model with switching
--- costs. The current statement is a placeholder.
---
--- Coase (1960) + Bertrand competition.
--- ════════════════════════════════════════════════════════════
+/-- Competitive exchanges drive fees to marginal cost.
 
-/-- With portable positions (market-position.json) and zero switching costs,
-    exchange fees converge to marginal cost plus epsilon, where epsilon is
-    the switching cost. No exchange can profitably deviate by more than epsilon.
+    With portable positions (market-position.json) and switching cost ε,
+    no exchange can profitably charge more than marginal cost + ε because
+    advertisers switch to the cheapest exchange.
 
-    Coase (1960) + Bertrand competition. -/
-theorem epsilon_nash_fees
+    Placeholder — formalization requires a Bertrand competition model
+    with switching costs.
+
+    Bertrand (1883); Tirole, Theory of Industrial Organization, Ch. 5. -/
+theorem competitive_exchanges_bertrand_fees
     (K : ℕ) (marginal_cost : ℝ) (epsilon : ℝ) (hε : 0 < epsilon)
     (fees : Fin K → ℝ)
     (hswitch : ∀ k, fees k ≤ marginal_cost + epsilon) :
-    -- No exchange can profitably charge more than marginal_cost + epsilon
-    -- because advertisers switch to the cheapest exchange
-    True := by  -- placeholder
+    True := by  -- placeholder: needs Bertrand competition model
   sorry
 
 -- ════════════════════════════════════════════════════════════
