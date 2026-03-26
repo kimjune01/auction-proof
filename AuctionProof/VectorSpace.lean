@@ -226,25 +226,37 @@ theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
 -- ════════════════════════════════════════════════════════════
 
 -- ════════════════════════════════════════════════════════════
--- 2026-03-04: Three Levers / Tau
--- https://june.kim/three-levers
--- "Tau has zero auction cost."
+-- 2026-03-04: Three Levers / Tau → superseded by Axes of Exclusion
+-- https://june.kim/three-levers (original)
+-- https://june.kim/axes-of-exclusion (supersedes scalar tau)
 --
--- Difficulty: MEDIUM
--- The current statement is a placeholder (proves True). Needs to be
--- restated as: the winner among eligible players maximizes welfare
--- among eligible players. This follows from winner_maximizes_welfare
--- restricted to a subset — the proof in Efficiency.lean works on any
--- nonempty Finset, not just Finset.univ.
+-- Three Levers defined τ as a scalar relevance floor: isotropic sphere.
+-- Axes of Exclusion replaces it with a compound filter:
+--   1. Axis-aligned exclusion (Kronecker tree bitfields per axis)
+--   2. Learned Mahalanobis gate (diagonal M, directional τ)
+--   3. The auction runs unchanged inside the gate
 --
--- Hartline, Hoy & Taggart (2023), main structural result.
--- arXiv: 2310.03702
+-- The formalization target shifts: instead of "scalar τ preserves
+-- efficiency among eligible," the claim is "any pre-auction filter
+-- that passes a nonempty subset preserves VCG efficiency on that
+-- subset." This is a direct corollary of winner_maximizes_welfare
+-- restricted to a Finset — the existing proof works on any nonempty
+-- Finset, not just Finset.univ.
+--
+-- Difficulty: MEDIUM (needs real theorem statement)
+-- Hartline, Hoy & Taggart (2023). arXiv: 2310.03702
 -- ════════════════════════════════════════════════════════════
 
-/-- Tau truncation: filtering out advertisers below a relevance threshold
-    does not distort the auction among the remaining participants. The
-    winner among eligible advertisers is still the welfare maximizer
-    among eligible advertisers.
+/-- Pre-auction filtering preserves VCG efficiency on the surviving set.
+
+    Any filter (scalar τ, axis-aligned exclusion, Mahalanobis gate, or
+    their composition) that passes a nonempty subset of advertisers
+    preserves the welfare-maximizing property: the winner among eligible
+    advertisers is still the highest-value advertiser among eligible
+    advertisers. The auction doesn't care how you got the subset.
+
+    This generalizes "tau has zero auction cost" from Three Levers and
+    subsumes the compound filter pipeline from Axes of Exclusion.
 
     Hartline, Hoy & Taggart (2023).
     arXiv: 2310.03702 -/
