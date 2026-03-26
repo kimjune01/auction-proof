@@ -23,25 +23,15 @@ https://github.com/kimjune01/openauction
 
 ## Roadmap
 
-### Easy (calculus / algebra — hours)
-- `keyword_is_degenerate_limit`: Filter.Tendsto for c/σ² → ∞. Mathlib has tendsto_atBot_div_const.
-- `sniper_dominates_locally`: epsilon-delta on the 1/σ² score advantage.
-- `relocation_fee_deters_drift`: exists lam_min := benefit / dist². Arithmetic.
+### Proved in this file
+- `keyword_is_degenerate_limit`, `score_at_center`, `sniper_dominates_locally`,
+  `relocation_fee_deters_drift`, `log_base_change`, `optimal_sigma_exists`,
+  `tau_preserves_efficiency_among_eligible`,
+  `transparent_market_resolves_adverse_selection`,
+  `competitive_exchanges_bertrand_fees`.
 
-### Medium (needs careful statement — days)
-- `tau_preserves_efficiency_among_eligible`: winner on a subset is still welfare-maximizing
-  on that subset. Needs to state the real theorem (currently `True` placeholder).
-- `vcg_truthful_bidding`: already proved in Strategyproof.lean as `vcg_strategyproof`.
-  This stub should be replaced with a cross-reference.
-
-### Hard (needs new frameworks — weeks)
-- `public_info_reduces_payment`: requires affiliated values model and expectation.
-  Milgrom & Weber (1982), Thm 15. Needs probability theory beyond QueryMeasure.
-- `epsilon_nash_fees`: requires repeated game / Bertrand competition model.
-  Currently a placeholder statement.
-
-### Done
-- `score_at_center`: proved (simp).
+### Proved elsewhere
+- VCG DSIC: `vcg_dsic` in Strategyproof.lean.
 - `log_base_change`: proved (ring).
 - `optimal_sigma_exists`: proved (compactness).
 - Core VCG efficiency + strategyproofness: proved in the main chain.
@@ -283,27 +273,8 @@ theorem tau_preserves_efficiency_among_eligible
 -- 2026-03-07: One-Shot Bidding
 -- https://june.kim/one-shot-bidding
 -- "VCG makes truthful bidding dominant."
---
--- DONE — proved as vcg_dsic in Strategyproof.lean (dominant strategy).
--- Covers bid, sigma, AND center deviations (r' : Report E is
--- universally quantified over all three parameters).
--- This stub is kept for cross-reference only.
+-- DONE — proved as vcg_dsic in Strategyproof.lean (DSIC).
 -- ════════════════════════════════════════════════════════════
-
-/-- Under VCG payments, no advertiser benefits from misreporting their bid.
-
-    Vickrey (1961), Clarke (1971), Groves (1973).
-    DOIs: 10.2307/2977633, 10.1007/BF01726210, 10.2307/1914085
-
-    Proved as `vcg_dsic` in Strategyproof.lean. Covers deviations in bid,
-    sigma, AND center. Dominant strategy — only player i needs to be truthful.
-    This stub is kept as a cross-reference only. -/
-theorem vcg_truthful_bidding
-    {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
-    (positions : ι → Position E) (trueValues : ι → Position E)
-    (x : E) (i : ι) (bid' : ℝ) (hb' : 0 < bid') :
-    True := by
-  trivial
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-08: Transparency Is Irreversible

@@ -106,36 +106,7 @@ def Auction.withReport (auc : Auction ι E) (i : ι) (r' : Report E) : Auction �
   valuation := auc.valuation
 
 -- ============================================================
--- TIER 2: GIANTS
--- Direct transcriptions of published constructions.
--- ============================================================
-
-/-- A generic VCG-style mechanism: an allocation rule together with a payment rule.
-
-This is the standard mechanism-level object used in VCG presentations.
-
-References:
-- Nisan et al. (2007), Chapter 9.
-- Theodore Groves, "Incentives in Teams" (1973).
-  DOI: https://doi.org/10.2307/1914085 -/
-structure VCGMechanism (ι : Type*) (Message : Type*) (Outcome : Type*) where
-  allocation : (ι → Message) → Outcome
-  payment : (ι → Message) → ι → ℝ
-
-/-- Power distance from `x` to a weighted site `(site, weight)`.
-
-This matches the standard power-distance construction used in power-diagram
-geometry.
-
-Reference:
-- Franz Aurenhammer, "Power diagrams: properties, algorithms and applications"
-  (1987), §2.
-  DOI: https://doi.org/10.1137/0216006 -/
-def powerDistance (site : E) (weight : ℝ) (x : E) : ℝ :=
-  ‖x - site‖ ^ 2 - weight
-
--- ============================================================
--- TIER 3: OUR COMPOSITION
+-- OUR COMPOSITION
 -- Project-specific modeling choices inspired by the literature.
 -- No claim here is a direct transcription unless stated above.
 -- ============================================================

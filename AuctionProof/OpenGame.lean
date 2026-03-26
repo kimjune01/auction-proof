@@ -219,40 +219,4 @@ theorem parallel_equilibria_decompose
   unfold OpenGame.par OpenGame.isNashEquilibrium
   simp only
 
--- ============================================================
--- APPLICATION: Full auction system as composed game
--- ============================================================
-
-/-- The sigma optimization game: each advertiser chooses their reach
-    parameter to maximize expected utility given the auction outcome.
-
-    This composes sequentially with the VCG auction: the auction takes
-    the declared positions as input, the sigma game produces them.
-
-    Che (1993), Proposition 1.
-    DOI: https://doi.org/10.2307/2555752
-
-    Note: bestResponse is a placeholder (True). Formalizing Che's sigma
-    best-response condition is SECONDARY goal S1 in GOALS.md. -/
-def sigmaGame : OpenGame (ι → ℝ) (Auction ι E) (Auction ι E) ℝ ℝ where
-  play := fun _sigmas auc => auc
-  coplay := fun _sigmas _auc r => r
-  bestResponse := fun _auc _k _sigmas => True
-
-/-- The tau truncation game: the publisher chooses a relevance threshold.
-
-    This composes sequentially after the auction: it filters the allocation
-    by excluding advertisers below the relevance threshold.
-
-    Hartline, Hoy & Taggart (2023), main structural result.
-    arXiv: 2310.03702
-
-    Note: bestResponse is a placeholder (True). The publisher's tau/filter
-    optimization is outside the auction's scope — see Axes of Exclusion
-    (https://june.kim/axes-of-exclusion) for the compound filter model. -/
-def tauGame : OpenGame ℝ (Auction ι E) (Auction ι E) ℝ ℝ where
-  play := fun _tau auc => auc
-  coplay := fun _tau _auc r => r
-  bestResponse := fun _auc _k _tau => True
-
 end

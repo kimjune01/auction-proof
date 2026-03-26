@@ -312,12 +312,4 @@ theorem truthful_sigma_is_best_response
     playerUtility auc i x ≥ playerUtility (auc.withReport i r') i x := by
   intro r'; exact vcg_dsic auc i x r' hi
 
-theorem compression_neutrality_at_equilibrium
-    (auc : Auction ι E) (i : ι) (x : E) (r' : Report E)
-    (hi : isTruthful (auc.report i) (auc.valuation i)) :
-    playerUtility auc i x ≥ playerUtility (auc.withReport i r') i x :=
-  vcg_dsic auc i x r' hi
-
-theorem vcg_is_unique_efficient_dsic : True := trivial
-
 end
