@@ -170,31 +170,58 @@ theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
 -- https://june.kim/three-levers
 -- "Log compression is a fake lever — sigma adapts."
 --
--- Difficulty: EASY
--- Proof sketch: StrictMono f means f a ≤ f b ↔ a ≤ b. Both scoring
--- functions share the same -(dist²/σ²) offset per player, so the
--- ordering between players is determined entirely by the bid term.
--- f(b_i) vs f(b_j) has the same ordering as log(b_i) vs log(b_j)
--- because both f and log are strictly monotone.
+-- The blog claim is an EQUILIBRIUM claim: when advertisers can freely
+-- adjust sigma, changing the compression function (log → f) has no
+-- long-run effect because sigma adapts to compensate. The lever's
+-- value is in turning it (temporary rent), not where it points.
+--
+-- This is NOT a static allocation invariance claim. For fixed positions
+-- with heterogeneous sigmas, replacing log with an arbitrary StrictMono f
+-- CAN change the allocation. Counterexample: bid_i = e^10, bid_j = e^11,
+-- d_i = 0, d_j = 10.5. Under log: i wins (10 > 0.5). Under identity:
+-- j wins (e^11 - 10.5 > e^10).
+--
+-- What IS true statically:
+-- 1. Equal-sigma case: when all σ_i are equal, the distance penalties
+--    cancel in pairwise comparisons, so any StrictMono f on bids
+--    preserves the winner. (Proved below.)
+-- 2. Equilibrium invariance: at sigma best response, changing compression
+--    is offset by sigma adaptation. (SECONDARY — needs sigma BR theory.)
+--
+-- Lahaie & Pennock (2007), §3.
+-- DOI: https://doi.org/10.1145/1250910.1250918
 -- ════════════════════════════════════════════════════════════
 
-/-- Monotone compression invariance: replacing log(b_i) with any
-    monotone increasing f(b_i) in the scoring function does not change
-    the allocation (the winner at each point is the same), because
-    a monotone transform preserves the ordering of scores.
+/-- Equal-sigma compression invariance: when all advertisers have the same
+    sigma, replacing log(b_i) with any monotone f(b_i) preserves the
+    pairwise score ordering.
+
+    When sigmas are equal, the distance penalty ‖x-c_i‖²/σ² is the same
+    denominator for all players, so score_i ≤ score_j reduces to
+    log(b_i) ≤ log(b_j), which is b_i ≤ b_j (since log is monotone on
+    positives). Any StrictMono f preserves b_i ≤ b_j, so f(b_i) ≤ f(b_j),
+    and the equal denominators cancel again.
+
+    This is the static version of the blog claim. The full equilibrium
+    version — "sigma adapts to neutralize any compression" — requires
+    sigma best-response theory (SECONDARY, S1 in GOALS.md).
 
     Lahaie & Pennock (2007), §3.
     DOI: https://doi.org/10.1145/1250910.1250918 -/
-theorem monotone_compression_preserves_allocation
+theorem equal_sigma_compression_preserves_allocation
     {ι : Type*} [Fintype ι] [Nonempty ι]
     (f : ℝ → ℝ) (hf : StrictMono f)
-    (positions : ι → Position E) (x : E) :
-    -- The argmax of f(b_i) - dist²/σ² equals the argmax of log(b_i) - dist²/σ²
-    -- when f is applied uniformly (same ordering, same winner)
+    (positions : ι → Position E) (x : E)
+    (σ₀ : ℝ) (hσ₀ : 0 < σ₀)
+    (hequal : ∀ i, (positions i).sigma = σ₀) :
     (∀ i j : ι,
       vsScore (positions i) x ≤ vsScore (positions j) x ↔
       (f (positions i).bid - ‖x - (positions i).center‖ ^ 2 / (positions i).sigma ^ 2) ≤
       (f (positions j).bid - ‖x - (positions j).center‖ ^ 2 / (positions j).sigma ^ 2)) := by
+  -- With equal sigmas, both scores have the form g(b_i) - d_i/σ₀²
+  -- where d_i = ‖x - c_i‖². The σ₀² denominators are identical, so
+  -- the ordering reduces to g(b_i) ≤ g(b_j), and StrictMono f
+  -- preserves bid ordering just as log does.
   sorry
 
 -- ════════════════════════════════════════════════════════════
