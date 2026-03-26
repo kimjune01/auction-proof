@@ -167,17 +167,29 @@ def vcgOpenGame : OpenGame (Auction ι E) E ι ℝ ℝ where
 
     This is the key structural result that makes the proof modular:
 
-    **Open question for Hedges**: Does DSIC compose through open games?
-    Hedges' Thm 4.3 decomposes Nash equilibria. DSIC ⊃ Nash, so a
-    profile of dominant strategies is certainly a Nash equilibrium of
-    the composite. But the converse — does DSIC of components imply
-    DSIC of the composite? — requires the bestResponse relation to
-    quantify over ALL other players' strategies, not just the
-    continuation. In our VCG auction, DSIC holds because each player's
-    payment depends only on others' reports within that component. Does
-    this locality property survive categorical composition? If so, the
-    open game framework would give DSIC decomposition for free, which
-    would be a new result beyond Thm 4.3.
+    **On DSIC composition**: DSIC does NOT compose through open games
+    in general. Counterexample: two DSIC mechanisms where lying in
+    stage 1 gives a payoff through stage 2's output (the upstream
+    report influences downstream utility through the interface).
+
+    However, DSIC DOES compose when the continuation is *i-insensitive*:
+    downstream games don't let player i's upstream report affect i's
+    downstream payoff. In our auction pipeline, this holds because the
+    publisher filter is exogenous (publisher decides, not the advertiser)
+    and the sigma game's payoff to advertiser i doesn't depend on i's
+    report to the auction beyond what VCG already handles.
+
+    No published result in the open-games literature addresses DSIC
+    composition (as of 2026). Hedges' framework decomposes Nash,
+    Bayesian-Nash, and subgame-perfect equilibria, but not dominant
+    strategies. A formal "DSIC composition under i-insensitive
+    continuations" theorem would be a new result.
+
+    Literature:
+    - Ghani, Hedges et al. (2018), Thm 4.3: Nash composition.
+    - Bolt, Hedges, Zahn (2023): Bayesian open games. arXiv: 1910.03656
+    - Hedges (2018), "Morphisms of open games": subgame-perfect.
+      DOI: https://doi.org/10.1016/j.entcs.2018.11.008
     proving equilibrium of the full auction-sigma-tau system reduces to
     proving equilibrium of each component separately. -/
 theorem composed_equilibria_decompose
