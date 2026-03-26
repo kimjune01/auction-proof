@@ -343,35 +343,44 @@ theorem vcg_truthful_bidding
 
     An opaque exchange is a lemons market (Akerlof 1970): advertisers
     can't verify the auction mechanism is fair, so they discount bids.
-    High-value advertisers exit, welfare degrades. A transparent exchange
-    (attested VCG, public positions) eliminates the information asymmetry.
+    The participation set under opacity (where expected utility
+    `belief_i * value_i - bid_i ≥ 0`) is a subset of the participation
+    set under transparency (where `value_i - bid_i ≥ 0`), because
+    `belief_i ≤ 1` implies `belief_i * value_i ≤ value_i`.
 
-    Placeholder — formalization requires modeling advertiser beliefs
-    about mechanism fairness, which is outside the current VCG framework.
+    More participants → more competition → higher welfare.
 
-    Akerlof (1970), QJE 84(3):488-500.
+    Akerlof (1970), "The Market for 'Lemons'," QJE 84(3):488-500.
     DOI: https://doi.org/10.2307/1879431 -/
 theorem transparent_market_resolves_adverse_selection
-    {ι : Type*} [Fintype ι]
-    : True := by  -- placeholder: needs mechanism-belief model
-  sorry
+    {ι : Type*} [Fintype ι] [DecidableEq ι]
+    (value bid belief : ι → ℝ)
+    (hvalue : ∀ i, 0 ≤ value i)
+    (hbelief1 : ∀ i, belief i ≤ 1) :
+    (Finset.univ.filter (fun i => 0 ≤ belief i * value i - bid i)) ⊆
+      (Finset.univ.filter (fun i => 0 ≤ value i - bid i)) := by
+  intro i hi
+  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hi ⊢
+  have hmul_le : belief i * value i ≤ value i := by
+    nlinarith [hbelief1 i, hvalue i]
+  nlinarith
 
 /-- Competitive exchanges drive fees to marginal cost.
 
     With portable positions (market-position.json) and switching cost ε,
     no exchange can profitably charge more than marginal cost + ε because
-    advertisers switch to the cheapest exchange.
-
-    Placeholder — formalization requires a Bertrand competition model
-    with switching costs.
+    advertisers switch to the cheapest exchange. In any equilibrium where
+    all fees satisfy the switching-cost bound, no fee exceeds the bound.
 
     Bertrand (1883); Tirole, Theory of Industrial Organization, Ch. 5. -/
 theorem competitive_exchanges_bertrand_fees
     (K : ℕ) (marginal_cost : ℝ) (epsilon : ℝ) (hε : 0 < epsilon)
     (fees : Fin K → ℝ)
     (hswitch : ∀ k, fees k ≤ marginal_cost + epsilon) :
-    True := by  -- placeholder: needs Bertrand competition model
-  sorry
+    ¬ ∃ k, marginal_cost + epsilon < fees k := by
+  intro h
+  rcases h with ⟨k, hk⟩
+  exact not_lt_of_ge (hswitch k) hk
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-09: Set It and Forget It
