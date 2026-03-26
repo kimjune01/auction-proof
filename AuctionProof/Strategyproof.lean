@@ -106,6 +106,53 @@ theorem playerUtility_decomp (auc : Auction ι E) (i : ι) (x : E) :
 -- LEMMA 2: Payment invariance under own-report change
 -- ============================================================
 
+/-- If two scoring functions agree on all elements of a list, argmax gives
+    the same result.
+
+    Uses `List.argmax_eq_some_iff` from Mathlib (Data.List.MinMax), which
+    characterizes argmax as the element that dominates all others and has
+    the smallest index among ties.
+
+    Standard list theory — no economic content. -/
+private theorem List.argmax_congr' {α : Type*} {β : Type*}
+    [DecidableEq α] [LinearOrder β]
+    {f g : α → β} {l : List α} (h : ∀ a ∈ l, f a = g a) :
+    l.argmax f = l.argmax g := by
+  cases hl : l.argmax f with
+  | none =>
+    rw [List.argmax_eq_none] at hl; subst hl; rfl
+  | some m =>
+    symm; rw [List.argmax_eq_some_iff]
+    rw [List.argmax_eq_some_iff] at hl
+    obtain ⟨hml, hmax, hidx⟩ := hl
+    exact ⟨hml, fun a ha => by rw [← h a ha, ← h m hml]; exact hmax a ha,
+           fun a ha hle => hidx a ha (by rw [← h m hml, ← h a ha] at hle; exact hle)⟩
+
+/-- `winnerOnFinset` depends only on the scores of players in the player set.
+    If two auctions agree on scores for all players in the set, the restricted
+    winner is the same.
+
+    Our composition — not a published result. Connects `Function.update_of_ne`
+    (Lean core) with `List.argmax_congr'` (above). -/
+private theorem winnerOnFinset_congr (players : Finset ι) (hplayers : players.Nonempty)
+    (auc auc' : Auction ι E) (x : E)
+    (hscore : ∀ j ∈ players, score (auc'.report j) x = score (auc.report j) x) :
+    winnerOnFinset players hplayers auc' x = winnerOnFinset players hplayers auc x := by
+  unfold winnerOnFinset
+  dsimp only
+  have harg : players.toList.argmax (fun j => score (auc'.report j) x) =
+              players.toList.argmax (fun j => score (auc.report j) x) :=
+    List.argmax_congr' (fun a ha => hscore a (Finset.mem_toList.mp ha))
+  split
+  · next w hw =>
+    split
+    · next w' hw' =>
+      exact Option.some.inj (hw.symm.trans (harg.trans hw'))
+    · next hw' =>
+      exact absurd (List.argmax_eq_none.mp hw') (Finset.Nonempty.toList_ne_nil hplayers)
+  · next hw =>
+    exact absurd (List.argmax_eq_none.mp hw) (Finset.Nonempty.toList_ne_nil hplayers)
+
 /-- Changing player i's report does not affect the counterfactual welfare
     computed without i.
 
@@ -122,19 +169,23 @@ theorem welfareOthersWithout_invariant
     (auc : Auction ι E) (i : ι) (r' : Report E) (x : E) :
     welfareOthersWithout (auc.withReport i r') i x =
       welfareOthersWithout auc i x := by
-  -- The key facts:
-  -- 1. For j ≠ i: (auc.withReport i r').report j = auc.report j
-  --    (by Function.update_of_ne)
-  -- 2. (auc.withReport i r').valuation = auc.valuation
-  --    (by definition of withReport)
-  -- 3. winnerOnFinset on (univ.erase i) only evaluates scores at j ≠ i
-  -- 4. Therefore the restricted winner and its welfare are unchanged.
-  --
-  -- The proof requires a congruence lemma for List.argmax showing that
-  -- if the scoring function agrees on all list elements, the argmax is
-  -- the same. This is mechanically obvious but requires induction on
-  -- the list representation of Finset.toList, which is tedious plumbing.
-  sorry
+  unfold welfareOthersWithout
+  split
+  · next h =>
+    -- The restricted winner is the same because scores agree on univ.erase i
+    have hw : winnerOnFinset (Finset.univ.erase i) h (auc.withReport i r') x =
+              winnerOnFinset (Finset.univ.erase i) h auc x := by
+      apply winnerOnFinset_congr
+      intro j hj
+      have hji : j ≠ i := Finset.ne_of_mem_erase hj
+      -- (auc.withReport i r').report j = Function.update auc.report i r' j = auc.report j
+      show score ((Function.update auc.report i r') j) x = score (auc.report j) x
+      rw [Function.update_of_ne hji]
+    -- After rewriting the winner, welfareOthersAt is the same because
+    -- (auc.withReport i r').valuation = auc.valuation (definitional)
+    rw [hw]
+    rfl
+  · rfl
 
 -- ============================================================
 -- MAIN THEOREM: Strategyproofness
