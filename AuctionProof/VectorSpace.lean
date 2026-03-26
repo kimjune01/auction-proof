@@ -103,10 +103,12 @@ theorem keyword_is_degenerate_limit (c : E) (b : ℝ) (hb : 0 < b)
       (nhdsWithin 0 (Set.Ioi 0)) Filter.atTop := by
     simpa [pow_two, div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc] using
       hsqinv.const_mul_atTop hdist2
-  -- ‖x-c‖²/σ² → +∞ (hquot), so log(b) - ‖x-c‖²/σ² → -∞.
-  -- Remaining step: tendsto_neg_atTop_atBot.comp hquot gives the negation,
-  -- then atBot_add with the constant log(b) finishes.
-  sorry
+  -- ‖x-c‖²/σ² → +∞ (hquot), so -(‖x-c‖²/σ²) → -∞, so log(b) + (-(‖x-c‖²/σ²)) → -∞.
+  have hneg : Filter.Tendsto (fun σ => -(‖x - c‖ ^ 2 / σ ^ 2))
+      (nhdsWithin 0 (Set.Ioi 0)) Filter.atBot :=
+    Filter.Tendsto.comp (Filter.tendsto_neg_atTop_atBot) hquot
+  simpa [sub_eq_add_neg] using
+    (tendsto_const_nhds (x := Real.log b)).add_atBot hneg
 
 set_option linter.unusedSectionVars false in
 /-- At the center, score is constant in sigma: score(c) = log(b) for all σ > 0. -/
@@ -137,7 +139,32 @@ theorem sniper_dominates_locally
     ∃ δ > 0, ∀ x : E, ‖x - c_sniper‖ < δ →
       vsScore ⟨c_sniper, σ_tight, b, ht, hb⟩ x >
       vsScore ⟨c_shotgun, σ_wide, b, hw, hb⟩ x := by
-  sorry
+  -- The score gap at c_sniper is positive (sniper scores log(b), shotgun scores
+  -- log(b) - ‖c_sniper - c_shotgun‖²/σ_wide² < log(b)). Both score functions
+  -- are continuous, so the gap is continuous and positive in a neighborhood.
+  let sniper : Position E := ⟨c_sniper, σ_tight, b, ht, hb⟩
+  let shotgun : Position E := ⟨c_shotgun, σ_wide, b, hw, hb⟩
+  let gap : E → ℝ := fun x => vsScore sniper x - vsScore shotgun x
+  have hgap_cont : Continuous gap := by
+    dsimp [gap, sniper, shotgun, vsScore]
+    refine (continuous_const.sub ?_).sub (continuous_const.sub ?_)
+    · exact ((continuous_norm.comp (continuous_id.sub continuous_const)).pow 2).div_const _
+    · exact ((continuous_norm.comp (continuous_id.sub continuous_const)).pow 2).div_const _
+  have hgap_pos : 0 < gap c_sniper := by
+    have hdist : 0 < ‖c_sniper - c_shotgun‖ :=
+      norm_pos_iff.mpr (sub_ne_zero.mpr hne)
+    have hsq : 0 < ‖c_sniper - c_shotgun‖ ^ 2 := pow_pos hdist 2
+    have hdiv : 0 < ‖c_sniper - c_shotgun‖ ^ 2 / σ_wide ^ 2 :=
+      div_pos hsq (pow_pos hw 2)
+    simpa [gap, sniper, shotgun, vsScore, sub_self, norm_zero, zero_div] using hdiv
+  have hEvent : ∀ᶠ x in nhds c_sniper, gap x ∈ Set.Ioi 0 :=
+    hgap_cont.continuousAt.eventually_mem (Ioi_mem_nhds hgap_pos)
+  rcases Metric.mem_nhds_iff.mp hEvent with ⟨δ, hδpos, hδ⟩
+  refine ⟨δ, hδpos, ?_⟩
+  intro x hx
+  have hxBall : x ∈ Metric.ball c_sniper δ := by
+    simpa [Metric.ball, dist_eq_norm] using hx
+  exact sub_pos.mp (hδ hxBall)
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-02-10: Relocation Fees
