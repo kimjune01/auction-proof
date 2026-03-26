@@ -8,11 +8,39 @@ import Mathlib.Topology.Order.Basic
 # Vector Space Series — Formalizable Claims
 
 Standalone Lean statements extracted from the vector-space blog series
-(june.kim, Feb–Mar 2026). Each claim is a theorem signature with `sorry`.
-These are not hooked into the main proof chain yet — they're a catalog of
-what the series argues, expressed precisely enough to someday prove.
+(https://june.kim/vector-space, Feb–Mar 2026). Each claim is either proved
+or marked `sorry` with a difficulty rating and proof sketch.
 
-Organized chronologically by post date.
+The main proof chain (Efficiency.lean → Strategyproof.lean →
+IntegralEfficiency.lean → GaussianOptimality.lean) is complete with zero
+sorry. This file catalogs the *surrounding* claims from the blog series
+that are not yet formalized.
+
+## Roadmap
+
+### Easy (calculus / algebra — hours)
+- `keyword_is_degenerate_limit`: Filter.Tendsto for c/σ² → ∞. Mathlib has tendsto_atBot_div_const.
+- `sniper_dominates_locally`: epsilon-delta on the 1/σ² score advantage.
+- `relocation_fee_deters_drift`: exists lam_min := benefit / dist². Arithmetic.
+- `monotone_compression_preserves_allocation`: StrictMono preserves < ordering. Three lines.
+
+### Medium (needs careful statement — days)
+- `tau_preserves_efficiency_among_eligible`: winner on a subset is still welfare-maximizing
+  on that subset. Needs to state the real theorem (currently `True` placeholder).
+- `vcg_truthful_bidding`: already proved in Strategyproof.lean as `vcg_strategyproof`.
+  This stub should be replaced with a cross-reference.
+
+### Hard (needs new frameworks — weeks)
+- `public_info_reduces_payment`: requires affiliated values model and expectation.
+  Milgrom & Weber (1982), Thm 15. Needs probability theory beyond QueryMeasure.
+- `epsilon_nash_fees`: requires repeated game / Bertrand competition model.
+  Currently a placeholder statement.
+
+### Done
+- `score_at_center`: proved (simp).
+- `log_base_change`: proved (ring).
+- `optimal_sigma_exists`: proved (compactness).
+- Core VCG efficiency + strategyproofness: proved in the main chain.
 -/
 
 noncomputable section
@@ -43,7 +71,13 @@ def vsValue (p : Position E) (x : E) : ℝ :=
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-02-09: Keywords Are Tiny Circles
+-- https://june.kim/keywords-are-tiny-circles
 -- "A keyword auction is the sigma → 0 limit."
+--
+-- Difficulty: EASY
+-- Proof sketch: ‖x - c‖² > 0 (by hx), so ‖x-c‖²/σ² → +∞ as σ → 0⁺.
+-- Then log(b) - ‖x-c‖²/σ² → -∞. Use Filter.Tendsto and
+-- Filter.tendsto_atBot_add_const_left or similar.
 -- ════════════════════════════════════════════════════════════
 
 /-- As sigma → 0, the score at any point other than center diverges to -∞.
@@ -56,6 +90,7 @@ theorem keyword_is_degenerate_limit (c : E) (b : ℝ) (hb : 0 < b)
       (nhdsWithin 0 (Set.Ioi 0)) Filter.atBot := by
   sorry
 
+set_option linter.unusedSectionVars false in
 /-- At the center, score is constant in sigma: score(c) = log(b) for all σ > 0. -/
 theorem score_at_center (c : E) (b : ℝ) (σ : ℝ) (hσ : 0 < σ) :
     Real.log b - ‖c - c‖ ^ 2 / σ ^ 2 = Real.log b := by
@@ -63,7 +98,14 @@ theorem score_at_center (c : E) (b : ℝ) (σ : ℝ) (hσ : 0 < σ) :
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-02-09: Sniper beats shotgun locally
+-- https://june.kim/keywords-are-tiny-circles
 -- "A tight-sigma advertiser always wins near their center."
+--
+-- Difficulty: EASY
+-- Proof sketch: At x = c_sniper, score_sniper = log(b) and
+-- score_shotgun = log(b) - ‖c_sniper - c_shotgun‖²/σ_wide² < log(b).
+-- By continuity, the strict inequality extends to a ball around c_sniper.
+-- Use Metric.isOpen_ball and the continuous score function.
 -- ════════════════════════════════════════════════════════════
 
 /-- A sniper (small sigma, any bid) beats a shotgun (large sigma, any bid)
@@ -80,7 +122,12 @@ theorem sniper_dominates_locally
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-02-10: Relocation Fees
+-- https://june.kim/relocation-fees
 -- "Quadratic relocation fees prevent position gaming."
+--
+-- Difficulty: EASY
+-- Proof sketch: benefit - lam * dist² ≤ dist² - lam * dist² = (1 - lam) * dist².
+-- For lam ≥ 1, this is ≤ 0. Set lam_min := 1.
 -- ════════════════════════════════════════════════════════════
 
 /-- Relocation fee: quadratic penalty for moving center. -/
@@ -98,19 +145,31 @@ theorem relocation_fee_deters_drift
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-02: The Price of Relevance
+-- https://june.kim/the-price-of-relevance
 -- "s = ln(b) maps embedding log-base to keyword quality weight."
 -- ════════════════════════════════════════════════════════════
 
 /-- The key identity: log_b(price) = ln(price) / ln(b), so the log base b
     in the scoring function acts as a weight on quality relative to price.
-    Setting s = ln(b) recovers the keyword formula's squashing parameter. -/
+    Setting s = ln(b) recovers the keyword formula's squashing parameter.
+
+    Lahaie & Pennock (2007), §3.
+    DOI: https://doi.org/10.1145/1250910.1250918 -/
 theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
     Real.log price / Real.log b = Real.log price * (1 / Real.log b) := by
   ring
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-04: Three Levers
+-- https://june.kim/three-levers
 -- "Log compression is a fake lever — sigma adapts."
+--
+-- Difficulty: EASY
+-- Proof sketch: StrictMono f means f a ≤ f b ↔ a ≤ b. Both scoring
+-- functions share the same -(dist²/σ²) offset per player, so the
+-- ordering between players is determined entirely by the bid term.
+-- f(b_i) vs f(b_j) has the same ordering as log(b_i) vs log(b_j)
+-- because both f and log are strictly monotone.
 -- ════════════════════════════════════════════════════════════
 
 /-- Monotone compression invariance: replacing log(b_i) with any
@@ -118,7 +177,7 @@ theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
     the allocation (the winner at each point is the same), because
     a monotone transform preserves the ordering of scores.
 
-    Inspiration: Lahaie & Pennock (2007).
+    Lahaie & Pennock (2007), §3.
     DOI: https://doi.org/10.1145/1250910.1250918 -/
 theorem monotone_compression_preserves_allocation
     {ι : Type*} [Fintype ι] [Nonempty ι]
@@ -134,7 +193,18 @@ theorem monotone_compression_preserves_allocation
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-04: Three Levers / Tau
+-- https://june.kim/three-levers
 -- "Tau has zero auction cost."
+--
+-- Difficulty: MEDIUM
+-- The current statement is a placeholder (proves True). Needs to be
+-- restated as: the winner among eligible players maximizes welfare
+-- among eligible players. This follows from winner_maximizes_welfare
+-- restricted to a subset — the proof in Efficiency.lean works on any
+-- nonempty Finset, not just Finset.univ.
+--
+-- Hartline, Hoy & Taggart (2023), main structural result.
+-- arXiv: 2310.03702
 -- ════════════════════════════════════════════════════════════
 
 /-- Tau truncation: filtering out advertisers below a relevance threshold
@@ -142,7 +212,7 @@ theorem monotone_compression_preserves_allocation
     winner among eligible advertisers is still the welfare maximizer
     among eligible advertisers.
 
-    Inspiration: Hartline, Hoy & Taggart (2023).
+    Hartline, Hoy & Taggart (2023).
     arXiv: 2310.03702 -/
 theorem tau_preserves_efficiency_among_eligible
     {ι : Type*} [Fintype ι] [Nonempty ι]
@@ -151,31 +221,46 @@ theorem tau_preserves_efficiency_among_eligible
     (helig : ∀ i ∈ eligible, ‖x - (positions i).center‖ ^ 2 / (positions i).sigma ^ 2 ≤ τ)
     (hne : eligible.Nonempty) :
     -- The winner among eligible players maximizes value among eligible players
-    True := by  -- placeholder statement
+    True := by  -- placeholder statement — needs real theorem signature
   sorry
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-07: One-Shot Bidding
+-- https://june.kim/one-shot-bidding
 -- "VCG makes truthful bidding dominant."
--- Already proved as winner_maximizes_welfare in Efficiency.lean.
--- Here we state the payment version.
+--
+-- DONE — proved as vcg_strategyproof in Strategyproof.lean.
+-- Covers bid, sigma, AND center deviations (r' : Report E is
+-- universally quantified over all three parameters).
+-- This stub is kept for cross-reference only.
 -- ════════════════════════════════════════════════════════════
 
 /-- Under VCG payments, no advertiser benefits from misreporting their bid.
 
     Vickrey (1961), Clarke (1971), Groves (1973).
-    DOIs: 10.2307/2977633, 10.1007/BF01726210, 10.2307/1914085 -/
+    DOIs: 10.2307/2977633, 10.1007/BF01726210, 10.2307/1914085
+
+    See: Strategyproof.lean, `vcg_strategyproof` for the full proof. -/
 theorem vcg_truthful_bidding
     {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
     (positions : ι → Position E) (trueValues : ι → Position E)
     (x : E) (i : ι) (bid' : ℝ) (hb' : 0 < bid') :
     -- utility_i(truthful) ≥ utility_i(deviate to bid')
-    True := by  -- placeholder: needs proper VCG payment definition
-  sorry
+    True := by  -- See vcg_strategyproof for the real theorem
+  trivial
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-08: Transparency Is Irreversible
+-- https://june.kim/transparency-is-irreversible
 -- "Public sigma reduces overbidding."
+--
+-- Difficulty: HARD
+-- Requires affiliated values model (lattice-theoretic affiliation on ℝⁿ),
+-- conditional expectations, and the linkage principle machinery.
+-- Beyond what QueryMeasure provides — needs real probability theory.
+--
+-- Milgrom & Weber (1982), Theorem 15.
+-- DOI: https://doi.org/10.2307/1911865
 -- ════════════════════════════════════════════════════════════
 
 /-- Public information weakly reduces expected payments (linkage principle).
@@ -193,7 +278,14 @@ theorem public_info_reduces_payment
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-08: Transparency Is Irreversible
+-- https://june.kim/transparency-is-irreversible
 -- "Exchange fees converge to epsilon-Nash near marginal cost."
+--
+-- Difficulty: HARD
+-- Requires repeated game / Bertrand competition model with switching
+-- costs. The current statement is a placeholder.
+--
+-- Coase (1960) + Bertrand competition.
 -- ════════════════════════════════════════════════════════════
 
 /-- With portable positions (market-position.json) and zero switching costs,
@@ -212,13 +304,19 @@ theorem epsilon_nash_fees
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-09: Set It and Forget It
+-- https://june.kim/set-it-and-forget-it
 -- "Sigma is learnable from conversion data."
+--
+-- DONE — proved via compactness (IsCompact.exists_isMaxOn).
 -- ════════════════════════════════════════════════════════════
 
+set_option linter.unusedSectionVars false in
 /-- The optimal sigma for an advertiser exists and is unique when
     value decays as a Gaussian in distance and the query distribution
     has a density. Sigma can be learned from conversion data without
-    the advertiser setting it manually. -/
+    the advertiser setting it manually.
+
+    Standard topology: continuous function on compact set attains maximum. -/
 theorem optimal_sigma_exists
     (center : E) (bid : ℝ) (hb : 0 < bid)
     -- Assume: continuous utility in sigma on a compact interval
