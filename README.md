@@ -10,7 +10,7 @@ If advertiser relevance decays as a Gaussian in embedding distance, then the sco
 2. VCG payments make truthful reporting each advertiser's best response.
 3. No allocation rule — not just no power diagram, but no allocation whatsoever — achieves higher expected welfare.
 
-The one line of new math is `score_eq_log_trueVal`: under truthful reporting, `score_i(x) = log(trueVal_i(x))`. Everything else is standard VCG (Vickrey 1961, Clarke 1971, Groves 1973) and standard measure theory.
+The contribution is `score_eq_log_trueVal`: showing that under truthful reporting, `score_i(x) = log(trueVal_i(x))`. This is the bridge between the embedding geometry and the VCG machinery. Everything else is standard (Vickrey 1961, Clarke 1971, Groves 1973).
 
 ## What's proved
 
