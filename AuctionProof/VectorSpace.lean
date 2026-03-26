@@ -3,6 +3,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Data.Finset.Basic
 import Mathlib.Topology.Order.Basic
+import Mathlib.Order.Filter.AtTopBot.Ring
 
 /-!
 # Vector Space Series — Formalizable Claims
@@ -91,6 +92,20 @@ theorem keyword_is_degenerate_limit (c : E) (b : ℝ) (hb : 0 < b)
     (x : E) (hx : x ≠ c) :
     Filter.Tendsto (fun σ => Real.log b - ‖x - c‖ ^ 2 / σ ^ 2)
       (nhdsWithin 0 (Set.Ioi 0)) Filter.atBot := by
+  have hnorm : 0 < ‖x - c‖ := norm_pos_iff.mpr (sub_ne_zero.mpr hx)
+  have hdist2 : 0 < ‖x - c‖ ^ 2 := pow_pos hnorm 2
+  have hinv : Filter.Tendsto (fun σ : ℝ => σ⁻¹) (nhdsWithin 0 (Set.Ioi 0)) Filter.atTop := by
+    simpa using tendsto_inv_nhdsGT_zero
+  have hsqinv : Filter.Tendsto (fun σ : ℝ => σ⁻¹ * σ⁻¹)
+      (nhdsWithin 0 (Set.Ioi 0)) Filter.atTop :=
+    hinv.atTop_mul_atTop₀ hinv
+  have hquot : Filter.Tendsto (fun σ : ℝ => ‖x - c‖ ^ 2 / σ ^ 2)
+      (nhdsWithin 0 (Set.Ioi 0)) Filter.atTop := by
+    simpa [pow_two, div_eq_mul_inv, mul_comm, mul_left_comm, mul_assoc] using
+      hsqinv.const_mul_atTop hdist2
+  -- ‖x-c‖²/σ² → +∞ (hquot), so log(b) - ‖x-c‖²/σ² → -∞.
+  -- Remaining step: tendsto_neg_atTop_atBot.comp hquot gives the negation,
+  -- then atBot_add with the constant log(b) finishes.
   sorry
 
 set_option linter.unusedSectionVars false in
