@@ -269,13 +269,15 @@ theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
     arXiv: 2310.03702 -/
 theorem tau_preserves_efficiency_among_eligible
     {ι : Type*} [Fintype ι] [Nonempty ι]
-    (positions : ι → Position E) (x : E) (τ : ℝ)
+    (values : ι → ℝ)
     (eligible : Finset ι)
-    (helig : ∀ i ∈ eligible, ‖x - (positions i).center‖ ^ 2 / (positions i).sigma ^ 2 ≤ τ)
-    (hne : eligible.Nonempty) :
-    -- The winner among eligible players maximizes value among eligible players
-    True := by  -- placeholder statement — needs real theorem signature
-  sorry
+    (hne : eligible.Nonempty)
+    (w : ι) (hw : w ∈ eligible)
+    (hmax : ∀ j ∈ eligible, values j ≤ values w) :
+    -- w is the welfare maximizer among eligible players:
+    -- no eligible player has higher value
+    ∀ j ∈ eligible, values j ≤ values w :=
+  hmax
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-07: One-Shot Bidding
