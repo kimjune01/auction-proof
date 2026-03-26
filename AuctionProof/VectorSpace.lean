@@ -161,7 +161,11 @@ theorem relocation_fee_deters_drift
     (benefit : ℝ) (hben : benefit ≤ ‖c_new - p.center‖ ^ 2) :
     ∃ lam_min : ℝ, lam ≥ lam_min →
       benefit - relocationFee lam p.center c_new ≤ 0 := by
-  sorry
+  refine ⟨1, ?_⟩
+  intro hlam1
+  dsimp [relocationFee]
+  have hnorm : 0 ≤ ‖c_new - p.center‖ ^ 2 := sq_nonneg ‖c_new - p.center‖
+  nlinarith
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-02: The Price of Relevance
