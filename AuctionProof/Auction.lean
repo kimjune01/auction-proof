@@ -171,6 +171,21 @@ Inspiration:
 def trueVal (v : Valuation E) (x : E) : ℝ :=
   v.trueValue * Real.exp (-(‖x - v.center‖ ^ 2 / v.trueSigma ^ 2))
 
+/-- The value implied by a report (as opposed to a player's true value).
+
+    `reportedVal(r, x) = r.bid * exp(-||x - r.center||^2 / r.sigma^2)`.
+
+    In a real VCG mechanism, the payment is computed from reported values,
+    not true values. This definition lets the payment depend only on others'
+    reports, which is what makes truthful bidding a dominant strategy (not
+    just a Nash equilibrium).
+
+    Note: `score r x = log(reportedVal r x)` unconditionally — no truthfulness
+    needed. This is the key to DSIC: the mechanism always maximizes reported
+    welfare, and only the truthful player aligns reported with true welfare. -/
+def reportedVal (r : Report E) (x : E) : ℝ :=
+  r.bid * Real.exp (-(‖x - r.center‖ ^ 2 / r.sigma ^ 2))
+
 /-- The project's winner rule: choose an advertiser maximizing `score` at `x`.
 
 This is our allocation rule induced by the project-specific scoring function
@@ -185,11 +200,14 @@ def winner (auc : Auction ι E) (x : E) : ι :=
   | none =>
       absurd (List.argmax_eq_none.mp h) (Finset.Nonempty.toList_ne_nil hne)
 
-/-- Welfare contributed by players other than `i` when `w` is selected.
+/-- Reported welfare contributed by players other than `i` when `w` is selected.
 
-    Helper for the Clarke pivot payment. -/
+    Uses `reportedVal` (value implied by w's report), not `trueVal`.
+    This ensures the payment depends only on others' reports, which is
+    what makes VCG dominant-strategy incentive compatible (DSIC), not
+    just Nash. -/
 def welfareOthersAt (auc : Auction ι E) (i w : ι) (x : E) : ℝ :=
-  if w = i then 0 else trueVal (auc.valuation w) x
+  if w = i then 0 else reportedVal (auc.report w) x
 
 /-- Winner restricted to a nonempty finite player set.
 

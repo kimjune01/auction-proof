@@ -63,6 +63,54 @@ theorem score_eq_log_trueVal (r : Report E) (v : Valuation E) (x : E)
   rw [Real.log_exp]
   ring
 
+/-- score = log(reportedVal) unconditionally — no truthfulness needed.
+
+    This is the key to DSIC: the mechanism always maximizes reported
+    welfare. Only the truthful player aligns reported with true welfare. -/
+theorem score_eq_log_reportedVal (r : Report E) (x : E) :
+    score r x = Real.log (reportedVal r x) := by
+  unfold score reportedVal
+  rw [Real.log_mul (ne_of_gt r.bid_pos) (ne_of_gt (Real.exp_pos _))]
+  rw [Real.log_exp]
+  ring
+
+/-- reportedVal equals trueVal when the report is truthful. -/
+theorem reportedVal_eq_trueVal_of_truthful (r : Report E) (v : Valuation E) (x : E)
+    (h : isTruthful r v) :
+    reportedVal r x = trueVal v x := by
+  unfold reportedVal trueVal isTruthful at *
+  obtain ⟨hc, hs, hb⟩ := h
+  rw [hc, hs, hb]
+
+/-- The winner maximizes reported value — no truthfulness needed.
+
+    For any player j, reportedVal(winner) ≥ reportedVal(j). This follows
+    from score = log(reportedVal) and winner = argmax of score. -/
+theorem winner_maximizes_reportedVal (auc : Auction ι E) (x : E) (j : ι) :
+    reportedVal (auc.report (winner auc x)) x ≥ reportedVal (auc.report j) x := by
+  let scores : ι → ℝ := fun i => score (auc.report i) x
+  let l : List ι := (Finset.univ : Finset ι).toList
+  have hj_mem : j ∈ l := by simp [l, Finset.mem_toList]
+  rcases harg : l.argmax scores with _ | w
+  · have hnil : l = [] := List.argmax_eq_none.mp harg
+    exact absurd hnil (Finset.Nonempty.toList_ne_nil Finset.univ_nonempty)
+  · have hw_arg : w ∈ l.argmax scores := by simp [harg]
+    have hscore : scores j ≤ scores w := List.le_of_mem_argmax hj_mem hw_arg
+    have hwinner : winner auc x = w := winner_eq_of_argmax auc x w harg
+    have hscore' : score (auc.report j) x ≤ score (auc.report (winner auc x)) x := by
+      rw [hwinner]; exact hscore
+    have hj_log : score (auc.report j) x = Real.log (reportedVal (auc.report j) x) :=
+      score_eq_log_reportedVal (auc.report j) x
+    have hw_log : score (auc.report (winner auc x)) x =
+        Real.log (reportedVal (auc.report (winner auc x)) x) :=
+      score_eq_log_reportedVal (auc.report (winner auc x)) x
+    have hlog : Real.log (reportedVal (auc.report j) x) ≤
+        Real.log (reportedVal (auc.report (winner auc x)) x) := by
+      simpa [hj_log, hw_log] using hscore'
+    have hpos : ∀ k : ι, 0 < reportedVal (auc.report k) x := by
+      intro k; unfold reportedVal; exact mul_pos (auc.report k).bid_pos (Real.exp_pos _)
+    exact (Real.log_le_log_iff (hpos j) (hpos (winner auc x))).mp hlog
+
 /-- The winner under truthful reporting maximizes true value.
 
 For any other player j, trueVal(winner) ≥ trueVal(j) at query x.
