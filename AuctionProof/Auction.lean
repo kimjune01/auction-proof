@@ -36,8 +36,8 @@ the code below is itself a direct transcription of a published formal definition
 
 In particular:
 - `score`, `trueVal`, and `winner` live here.
-- The current `vcgPayment` is marked honestly as a placeholder, not as the
-  Clarke pivot payment.
+- `vcgPayment` implements the Clarke pivot via `winnerOnFinset` on
+  `Finset.univ.erase i` — proper exclusion of player i.
 - The connection from `score` to power diagrams is only asserted in the
   equal-`sigma` case.
 -/
@@ -185,22 +185,57 @@ def winner (auc : Auction ι E) (x : E) : ι :=
   | none =>
       absurd (List.argmax_eq_none.mp h) (Finset.Nonempty.toList_ne_nil hne)
 
-/-- Placeholder payment term used in the current development.
+/-- Welfare contributed by players other than `i` when `w` is selected.
 
-This definition is intentionally named conservatively in the docstring: it is
-not yet the Clarke pivot payment, because the counterfactual branch does not
-actually remove player `i` before recomputing the winner. The name is retained
-for project continuity, but the implementation should be treated as a temporary
-placeholder until proper exclusion is added. -/
+    Helper for the Clarke pivot payment. -/
+def welfareOthersAt (auc : Auction ι E) (i w : ι) (x : E) : ℝ :=
+  if w = i then 0 else trueVal (auc.valuation w) x
+
+/-- Winner restricted to a nonempty finite player set.
+
+    Used to compute the counterfactual allocation with player `i` removed.
+
+    Reference:
+    - Clarke (1971), §3: the pivotal mechanism requires recomputing the
+      outcome without each player. -/
+def winnerOnFinset (players : Finset ι) (hplayers : players.Nonempty)
+    (auc : Auction ι E) (x : E) : ι :=
+  let scores : ι → ℝ := fun j => score (auc.report j) x
+  let l := players.toList
+  match h : l.argmax scores with
+  | some j => j
+  | none =>
+      absurd (List.argmax_eq_none.mp h) (Finset.Nonempty.toList_ne_nil hplayers)
+
+/-- Welfare of players other than `i` under the current allocation. -/
+def welfareOthersWith (auc : Auction ι E) (i : ι) (x : E) : ℝ :=
+  welfareOthersAt auc i (winner auc x) x
+
+/-- Welfare of players other than `i` under the optimal allocation with
+    `i` removed.
+
+    If there is only one player, removing them leaves the empty set and
+    welfare is zero (free disposal). -/
+def welfareOthersWithout (auc : Auction ι E) (i : ι) (x : E) : ℝ :=
+  if h : (Finset.univ.erase i : Finset ι).Nonempty then
+    let w := winnerOnFinset (Finset.univ.erase i) h auc x
+    welfareOthersAt auc i w x
+  else
+    0
+
+/-- Clarke pivot payment:
+    `payment_i = welfare_others(optimal without i) - welfare_others(with i)`.
+
+    This is the externality pricing from the pivotal mechanism: player i pays
+    exactly the damage their presence inflicts on the other players.
+
+    References:
+    - Clarke (1971), "Multipart Pricing of Public Goods," §3.
+      DOI: https://doi.org/10.1007/BF01726210
+    - Groves (1973), "Incentives in Teams," Thm 2.
+      DOI: https://doi.org/10.2307/1914085 -/
 def vcgPayment (auc : Auction ι E) (i : ι) (x : E) : ℝ :=
-  let welfareOthersWithout : ℝ :=
-    let auc' := auc  -- TODO: proper exclusion of i (Checkpoint 3)
-    let w := winner auc' x
-    if w = i then 0 else trueVal (auc.valuation w) x
-  let welfareOthersWith : ℝ :=
-    let w := winner auc x
-    if w = i then 0 else trueVal (auc.valuation w) x
-  welfareOthersWithout - welfareOthersWith
+  welfareOthersWithout auc i x - welfareOthersWith auc i x
 
 /-- Welfare at query `x` under the project's allocation rule.
 
@@ -212,7 +247,7 @@ def pointwiseWelfare (auc : Auction ι E) (x : E) : ℝ :=
 /-- Player `i`'s utility at query `x` under the current project model.
 
 This combines quasilinear utility with the project-specific winner rule,
-valuation model, and current placeholder payment term. -/
+valuation model, and Clarke pivot payment. -/
 def playerUtility (auc : Auction ι E) (i : ι) (x : E) : ℝ :=
   utility auc i x
     (if winner auc x = i then trueVal (auc.valuation i) x else 0)
