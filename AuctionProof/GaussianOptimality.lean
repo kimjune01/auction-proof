@@ -2,6 +2,7 @@ import AuctionProof.Auction
 import AuctionProof.Axioms
 import AuctionProof.Efficiency
 import AuctionProof.IntegralEfficiency
+import AuctionProof.Strategyproof
 
 /-!
 # Gaussian Surplus Optimality
@@ -90,5 +91,51 @@ theorem gaussian_optimality
       welfareOfRule auc (fun x => winner auc x) μ ≥
         welfareOfRule auc rule μ :=
   integral_efficiency auc μ htruth
+
+-- ============================================================
+-- CAPSTONE: Weak dominance of the full configuration
+-- ============================================================
+
+/-- **Capstone theorem.** Under Gaussian valuations in any finite-dimensional
+    real inner product space, the transparent VCG configuration weakly
+    dominates every alternative in the three senses that matter:
+
+    1. **Welfare-optimality**: no alternative allocation rule achieves
+       higher expected welfare. The power diagram allocation is the best
+       any mechanism can do.
+    2. **Incentive compatibility**: no advertiser benefits from deviating
+       from truthful reporting of bid, center, or sigma. Honest play is
+       each player's best response.
+    3. **Allocation efficiency**: the equilibrium allocation that actually
+       runs (score argmax under truthful reports) is pointwise welfare-
+       maximizing. The mechanism implements its own optimum.
+
+    Together: the allocation is optimal, the equilibrium achieves it, and
+    no player wants to deviate. This is the strongest welfare guarantee
+    available under the model assumptions.
+
+    Participation expansion under transparency is established separately
+    (`transparent_market_resolves_adverse_selection` in VectorSpace.lean).
+    Fee bounds under exchange competition are in
+    `competitive_exchanges_bertrand_fees`. -/
+theorem gaussian_vcg_weakly_dominates
+    (auc : Auction ι E) (μ : QueryMeasure E)
+    (htruth : allTruthful auc) :
+    -- 1. No allocation rule does better
+    (∀ rule : E → ι,
+      welfareOfRule auc (fun x => winner auc x) μ ≥
+        welfareOfRule auc rule μ) ∧
+    -- 2. No advertiser benefits from deviating
+    (∀ i : ι, ∀ x : E, ∀ r' : Report E,
+      playerUtility auc i x ≥ playerUtility (auc.withReport i r') i x) ∧
+    -- 3. The equilibrium allocation is pointwise welfare-maximizing
+    (∀ x : E, ∀ j : ι,
+      trueVal (auc.valuation (winner auc x)) x ≥ trueVal (auc.valuation j) x) := by
+  refine ⟨?_, ?_, ?_⟩
+  · exact gaussian_optimality auc μ htruth
+  · intro i x r'
+    exact vcg_strategyproof auc i x r' htruth
+  · intro x j
+    exact winner_maximizes_welfare auc x htruth j
 
 end
