@@ -4,7 +4,7 @@ Lean 4 formalization proving that VCG on Gaussian embedding auctions is maximall
 
 ## The claim
 
-If advertiser relevance decays as a Gaussian in embedding distance, then the scoring function `log(b) - ||x-c||²/σ²` is a monotone transform of value. Therefore:
+For any finite-dimensional real inner product space (the embedding), if advertiser relevance decays as a Gaussian in distance, then the scoring function `log(b) - ||x-c||²/σ²` is a monotone transform of value. Therefore:
 
 1. The power diagram allocation (argmax of score) maximizes social welfare at every query point.
 2. VCG payments make truthful reporting each advertiser's best response.
