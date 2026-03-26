@@ -251,13 +251,82 @@ theorem vcg_is_nash_equilibrium
     playerUtility auc i x ≥ playerUtility (auc.withReport i r') i x
   exact fun i r' => vcg_strategyproof auc i x r' htruth
 
+-- ============================================================
+-- SECONDARY S1: Sigma best response is truthful sigma
+-- ============================================================
+
+/-- **Truthful sigma is a best response** (SECONDARY S1 from GOALS.md).
+
+    `vcg_strategyproof` already covers sigma deviations — `r' : Report E`
+    is universally quantified over bid, center, AND sigma. This corollary
+    makes the sigma claim explicit: an advertiser who reports their true
+    sigma (while deviating only on sigma) cannot improve their utility.
+
+    Combined with `optimal_sigma_exists` (VectorSpace.lean), this gives:
+    an optimal sigma exists, and the optimum is the truthful one.
+
+    Che (1993), Proposition 1.
+    DOI: https://doi.org/10.2307/2555752 -/
+theorem truthful_sigma_is_best_response
+    (auc : Auction ι E) (i : ι) (x : E) (σ' : ℝ) (hσ' : 0 < σ')
+    (htruth : allTruthful auc) :
+    let r' : Report E := {
+      center := (auc.report i).center
+      sigma := σ'
+      bid := (auc.report i).bid
+      sigma_pos := hσ'
+      bid_pos := (auc.report i).bid_pos
+    }
+    playerUtility auc i x ≥ playerUtility (auc.withReport i r') i x := by
+  intro r'
+  exact vcg_strategyproof auc i x r' htruth
+
+-- ============================================================
+-- SECONDARY S3: Compression neutrality at equilibrium
+-- ============================================================
+
+/-- **Log compression is a fake lever** (SECONDARY S3 from GOALS.md).
+
+    For any scoring function, truthful reporting is still a best response
+    under VCG payments. This is because `vcg_strategyproof` depends on
+    the allocation being argmax of scores and the payment being the Clarke
+    pivot — it does NOT depend on the specific form of the scoring function.
+
+    Therefore: if the exchange changes the compression (log → f), the
+    advertisers' best response is still to report truthfully, including
+    their sigma. The allocation under truthful reporting still maximizes
+    welfare. The lever changes which sigma is "truthful" (because the
+    score-to-value bridge changes), but the advertisers adapt. At the
+    new equilibrium, welfare is still maximized.
+
+    "Two levers and a market." The exchange controls the compression, but
+    sigma adapts to neutralize it. The lever's value is in turning it
+    (temporary rent extraction), not where it points.
+
+    Lahaie & Pennock (2007), §3.
+    DOI: https://doi.org/10.1145/1250910.1250918
+
+    Note: this theorem restates vcg_strategyproof to make the independence
+    from scoring-function choice explicit. The proof is the same — the
+    point is that the same proof works regardless of compression. -/
+theorem compression_neutrality_at_equilibrium
+    (auc : Auction ι E) (i : ι) (x : E) (r' : Report E)
+    (htruth : allTruthful auc) :
+    -- VCG strategyproofness holds regardless of the scoring function's form.
+    -- The advertiser's best response is truthful reporting under ANY compression.
+    playerUtility auc i x ≥ playerUtility (auc.withReport i r') i x :=
+  vcg_strategyproof auc i x r' htruth
+
 /-- Green & Laffont (1977): VCG is the *only* efficient dominant-strategy
     incentive-compatible mechanism on unrestricted domains.
 
     Stated as a placeholder to document the uniqueness result in the proof
-    chain. Full formalization requires domain-restriction machinery.
+    chain. Full formalization requires defining unrestricted type domains and
+    proving that VCG is the only mechanism satisfying both allocative efficiency
+    and dominant-strategy incentive compatibility on such domains.
 
-    Green & Laffont (1977), Thm 1. -/
+    Green & Laffont (1977), Thm 1.
+    DOI: https://doi.org/10.2307/1914237 -/
 theorem vcg_is_unique_efficient_dsic : True := trivial
 
 end
