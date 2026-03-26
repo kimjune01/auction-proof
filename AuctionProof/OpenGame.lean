@@ -166,6 +166,18 @@ def vcgOpenGame : OpenGame (Auction ι E) E ι ℝ ℝ where
     arXiv: 1603.04641
 
     This is the key structural result that makes the proof modular:
+
+    **Open question for Hedges**: Does DSIC compose through open games?
+    Hedges' Thm 4.3 decomposes Nash equilibria. DSIC ⊃ Nash, so a
+    profile of dominant strategies is certainly a Nash equilibrium of
+    the composite. But the converse — does DSIC of components imply
+    DSIC of the composite? — requires the bestResponse relation to
+    quantify over ALL other players' strategies, not just the
+    continuation. In our VCG auction, DSIC holds because each player's
+    payment depends only on others' reports within that component. Does
+    this locality property survive categorical composition? If so, the
+    open game framework would give DSIC decomposition for free, which
+    would be a new result beyond Thm 4.3.
     proving equilibrium of the full auction-sigma-tau system reduces to
     proving equilibrium of each component separately. -/
 theorem composed_equilibria_decompose
