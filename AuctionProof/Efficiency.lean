@@ -1,20 +1,18 @@
 import AuctionProof.Auction
 
 /-!
-# Checkpoint 2: Pointwise allocation maximizes welfare
+# Pointwise allocation maximizes welfare (and reported welfare)
 
-The key lemma: when reports are truthful (bid = trueValue, sigma = trueSigma,
-center = center), the scoring function is a monotone transformation of the
-value function. Therefore argmax of score = argmax of value, and the winner
-rule maximizes welfare.
+Two bridges, both algebra on the definitions:
 
-This is our composition connecting:
-- The argmax allocation rule (Tier 3, from Auction.lean)
-- Monotonicity of log (Mathlib)
-- The observation that score = log ∘ value under truthful reports
+1. **Truthful bridge** (`score_eq_log_trueVal`): when reports are truthful,
+   `score = log(trueVal)`. Since log is monotone, argmax score = argmax
+   trueVal, giving `winner_maximizes_welfare`.
 
-No new math. The only bridge is showing score_i(x) = log(v_i(x)) when
-reports match true valuations.
+2. **Unconditional bridge** (`score_eq_log_reportedVal`): `score = log(reportedVal)`
+   always — no truthfulness needed. This gives `winner_maximizes_reportedVal`,
+   which is the key to DSIC: the mechanism always maximizes *reported* welfare,
+   and only the truthful player aligns reported with true welfare.
 -/
 
 noncomputable section

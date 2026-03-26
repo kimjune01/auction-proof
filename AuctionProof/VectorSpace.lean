@@ -284,7 +284,7 @@ theorem tau_preserves_efficiency_among_eligible
 -- https://june.kim/one-shot-bidding
 -- "VCG makes truthful bidding dominant."
 --
--- DONE — proved as vcg_strategyproof in Strategyproof.lean.
+-- DONE — proved as vcg_dsic in Strategyproof.lean (dominant strategy).
 -- Covers bid, sigma, AND center deviations (r' : Report E is
 -- universally quantified over all three parameters).
 -- This stub is kept for cross-reference only.
@@ -295,8 +295,8 @@ theorem tau_preserves_efficiency_among_eligible
     Vickrey (1961), Clarke (1971), Groves (1973).
     DOIs: 10.2307/2977633, 10.1007/BF01726210, 10.2307/1914085
 
-    Proved as `vcg_strategyproof` in Strategyproof.lean. Covers deviations
-    in bid, sigma, AND center (r' : Report E is universally quantified).
+    Proved as `vcg_dsic` in Strategyproof.lean. Covers deviations in bid,
+    sigma, AND center. Dominant strategy — only player i needs to be truthful.
     This stub is kept as a cross-reference only. -/
 theorem vcg_truthful_bidding
     {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]

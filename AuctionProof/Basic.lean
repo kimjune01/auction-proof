@@ -15,10 +15,13 @@ welfare-optimal, incentive-compatible, and equilibrium-efficient.
 - **Axioms.lean** — the sole non-definitional assumption: QueryMeasure
   (monotone integration operator).
 - **Efficiency.lean** — the contribution: `score_eq_log_trueVal` (score =
-  log(value) under truthful reports), then `winner_maximizes_welfare`
-  (pointwise welfare optimality).
-- **Strategyproof.lean** — utility decomposition, payment invariance, VCG
-  strategyproofness, Hedges Nash equilibrium connection.
+  log(value) under truthful reports), `score_eq_log_reportedVal` (same
+  but unconditional — the key to DSIC), `winner_maximizes_welfare`
+  (pointwise welfare optimality), `winner_maximizes_reportedVal`
+  (unconditional reported-value optimality).
+- **Strategyproof.lean** — utility case analysis, payment invariance,
+  `vcg_dsic` (dominant strategy incentive compatibility — only player i
+  needs to be truthful), Nash equilibrium as corollary.
 - **IntegralEfficiency.lean** — pointwise optimality ⟹ integral optimality.
 - **GaussianOptimality.lean** — headline result: no allocation beats VCG.
   Capstone: `gaussian_vcg_weakly_dominates` (welfare-optimal ∧ incentive-

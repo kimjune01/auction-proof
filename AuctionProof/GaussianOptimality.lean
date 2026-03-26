@@ -108,9 +108,9 @@ theorem gaussian_optimality
     1. **Welfare-optimality**: no alternative allocation rule achieves
        higher expected welfare. The power diagram allocation is the best
        any mechanism can do.
-    2. **Incentive compatibility**: no advertiser benefits from deviating
-       from truthful reporting of bid, center, or sigma. Honest play is
-       each player's best response.
+    2. **Dominant-strategy incentive compatibility (DSIC)**: no advertiser
+       benefits from deviating from truthful reporting of bid, center, or
+       sigma — regardless of what others report. Honest play is dominant.
     3. **Allocation efficiency**: the equilibrium allocation that actually
        runs (score argmax under truthful reports) is pointwise welfare-
        maximizing. The mechanism implements its own optimum.

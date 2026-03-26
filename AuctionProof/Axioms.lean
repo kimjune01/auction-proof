@@ -31,10 +31,12 @@ This is the sole non-definitional assumption in the proof chain.
 
 ## What's a hypothesis on theorems
 
-- `allTruthful`: all players report honestly. This appears as a precondition
-  on efficiency and strategyproofness theorems, not as a global axiom.
-  The proof says: truthful reporting is a Nash equilibrium (strategyproofness)
-  AND it maximizes surplus (efficiency).
+- `isTruthful`: player i reports honestly. This appears as a precondition
+  on the DSIC theorem (`vcg_dsic`) — only player i needs to be truthful.
+- `allTruthful`: all players report honestly. Used for the efficiency
+  theorems and the Nash equilibrium corollary.
+  The proof says: truthful reporting is a dominant strategy (DSIC), which
+  implies Nash equilibrium and also maximizes surplus (efficiency).
 -/
 
 noncomputable section
