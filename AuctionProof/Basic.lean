@@ -28,6 +28,11 @@ welfare-optimal, incentive-compatible, and equilibrium-efficient.
   compatible ∧ equilibrium-efficient).
 - **OpenGame.lean** — Hedges' compositional game theory: open games,
   sequential and parallel composition, decomposition theorems.
+- **PowerDiagram.lean** — the allocation is a power diagram: in E for equal
+  sigmas (hyperplane bisectors), in E × ℝ via the Aurenhammer paraboloid
+  lift for arbitrary sigmas.
+- **SecondPrice.lean** — keywords are the degenerate case: at a common
+  center the mechanism is exactly Vickrey's second-price auction.
 - **VectorSpace.lean** — blog claim catalog with proofs, stubs, and roadmap.
 
 ## Blog series

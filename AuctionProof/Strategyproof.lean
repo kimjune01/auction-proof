@@ -91,7 +91,7 @@ private theorem List.argmax_congr' {α : Type*} {β : Type*}
     exact ⟨hml, fun a ha => by rw [← h a ha, ← h m hml]; exact hmax a ha,
            fun a ha hle => hidx a ha (by rw [← h m hml, ← h a ha] at hle; exact hle)⟩
 
-private theorem winnerOnFinset_mem (players : Finset ι) (hplayers : players.Nonempty)
+theorem winnerOnFinset_mem (players : Finset ι) (hplayers : players.Nonempty)
     (auc : Auction ι E) (x : E) :
     winnerOnFinset players hplayers auc x ∈ players := by
   unfold winnerOnFinset; dsimp only
@@ -101,7 +101,7 @@ private theorem winnerOnFinset_mem (players : Finset ι) (hplayers : players.Non
     exact Finset.mem_toList.mp this.1
   · next hw => exact absurd (List.argmax_eq_none.mp hw) (Finset.Nonempty.toList_ne_nil hplayers)
 
-private theorem winnerOnFinset_maximizes_reportedVal
+theorem winnerOnFinset_maximizes_reportedVal
     (players : Finset ι) (hplayers : players.Nonempty)
     (auc : Auction ι E) (x : E) (j : ι) (hj : j ∈ players) :
     reportedVal (auc.report (winnerOnFinset players hplayers auc x)) x ≥

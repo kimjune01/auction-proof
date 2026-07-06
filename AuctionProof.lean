@@ -6,4 +6,6 @@ import AuctionProof.Strategyproof
 import AuctionProof.IntegralEfficiency
 import AuctionProof.OpenGame
 import AuctionProof.GaussianOptimality
+import AuctionProof.PowerDiagram
+import AuctionProof.SecondPrice
 import AuctionProof.VectorSpace

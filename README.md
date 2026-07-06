@@ -12,6 +12,8 @@ For any finite-dimensional real inner product space (the embedding), if advertis
 
 The contribution is `score_eq_log_trueVal`: showing that under truthful reporting, `score_i(x) = log(trueVal_i(x))`. This is the bridge between the embedding geometry and the VCG machinery. Everything else is standard (Vickrey 1961, Clarke 1971, Groves 1973).
 
+Two geometric bookends (PowerDiagram.lean, SecondPrice.lean) pin down the "power diagram" name and the "keywords are a special case" claim: with equal sigmas the allocation is a power diagram in the embedding space itself; with heterogeneous sigmas it is exactly a power diagram one dimension up, restricted to the paraboloid `(x, ‖x‖²)` (Aurenhammer 1987, §4). And at a query point where all centers coincide — a keyword — the mechanism collapses to Vickrey's sealed-bid second-price auction, payment included.
+
 ## What's proved
 
 | Theorem | File | What it says |
@@ -26,6 +28,12 @@ The contribution is `score_eq_log_trueVal`: showing that under truthful reportin
 | `gaussian_optimality` | GaussianOptimality.lean | no allocation beats VCG on Gaussian embeddings |
 | `gaussian_vcg_weakly_dominates` | GaussianOptimality.lean | capstone: welfare-optimal ∧ DSIC ∧ equilibrium-efficient |
 | `composed_equilibria_decompose` | OpenGame.lean | Hedges' Thm 4.3: composite Nash = component Nash |
+| `score_le_iff_powerDist_le` | PowerDiagram.lean | equal-sigma case: the allocation is a power diagram in E (weights σ²·log b) |
+| `score_sub_affine` | PowerDiagram.lean | equal-sigma bisectors are hyperplanes |
+| `liftedPowerDist_paraboloid` | PowerDiagram.lean | **variable sigma**: the allocation is a power diagram in E × ℝ via the Aurenhammer lift (x, ‖x‖²) |
+| `winner_minimizes_liftedPowerDist` | PowerDiagram.lean | the winner rule is the lifted power-diagram cell assignment, for arbitrary sigmas |
+| `winner_maximizes_bid_of_common_center` | SecondPrice.lean | at a keyword point (common centers), the auction ranks by bid alone |
+| `vcgPayment_common_center_second_price` | SecondPrice.lean | at a keyword point, Clarke pivot = highest competing bid — exact Vickrey recovery |
 
 ## What's assumed
 
