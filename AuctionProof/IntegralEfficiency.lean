@@ -26,7 +26,7 @@ The bridge:
 ## References
 
 - Standard measure theory (integral monotonicity).
-- Groves (1973), Thm 1: efficient choice rule = argmax of values.
+- Groves (1973): payments aligning private incentives with total welfare.
   DOI: https://doi.org/10.2307/1914085
 -/
 
@@ -67,7 +67,7 @@ def welfareOfRule (auc : Auction ι E) (rule : E → ι) (μ : QueryMeasure E) :
     not just no power-diagram allocation, but no allocation whatsoever —
     can achieve higher expected welfare.
 
-    Groves (1973), Thm 1: efficient choice rule = argmax.
+    Groves (1973).
     Standard measure theory: pointwise domination ⟹ integral domination.
     DOI: https://doi.org/10.2307/1914085 -/
 theorem integral_efficiency

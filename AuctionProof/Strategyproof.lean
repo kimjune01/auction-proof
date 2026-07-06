@@ -33,7 +33,7 @@ player i needs to be truthful. Others can report anything.
 
 - Vickrey (1961), Thm 1. DOI: https://doi.org/10.2307/2977633
 - Clarke (1971), §3. DOI: https://doi.org/10.1007/BF01726210
-- Groves (1973), Thm 2. DOI: https://doi.org/10.2307/1914085
+- Groves (1973). DOI: https://doi.org/10.2307/1914085
 - Ghani, Hedges, Winschel & Zahn (2018), Thm 4.3. arXiv: 1603.04641
 -/
 
@@ -247,7 +247,7 @@ private theorem trueVal_le_welfareOthersWithout_of_loss
     truthful reporting is at least as high — **regardless of what others
     report**. Only player i needs to be truthful.
 
-    Vickrey (1961), Thm 1; Clarke (1971), §3; Groves (1973), Thm 2.
+    Vickrey (1961); Clarke (1971), §3; Groves (1973).
     DOI: https://doi.org/10.2307/2977633 -/
 theorem vcg_dsic
     (auc : Auction ι E) (i : ι) (x : E) (r' : Report E)

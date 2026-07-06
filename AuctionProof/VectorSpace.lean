@@ -4,6 +4,7 @@ import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Data.Finset.Basic
 import Mathlib.Topology.Order.Basic
 import Mathlib.Order.Filter.AtTopBot.Ring
+import AuctionProof.Strategyproof
 
 /-!
 # Vector Space Series — Formalizable Claims
@@ -241,9 +242,12 @@ theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
 
     Any filter (scalar τ, axis-aligned exclusion, Mahalanobis gate, or
     their composition) that passes a nonempty subset of advertisers
-    preserves the welfare-maximizing property: the winner among eligible
-    advertisers is still the highest-value advertiser among eligible
-    advertisers. The auction doesn't care how you got the subset.
+    preserves the welfare-maximizing property: the score-argmax winner
+    over the eligible set has the highest reported value among eligible
+    advertisers. Stated on the real auction machinery (`winnerOnFinset`,
+    `reportedVal`) as a corollary of
+    `winnerOnFinset_maximizes_reportedVal`; the auction doesn't care how
+    you got the subset.
 
     This generalizes "tau has zero auction cost" from Three Levers and
     subsumes the compound filter pipeline from Axes of Exclusion.
@@ -258,16 +262,13 @@ theorem log_base_change (price b : ℝ) (hb : 1 < b) (hp : 0 < price) :
     Hartline, Hoy & Taggart (2023).
     arXiv: 2310.03702 -/
 theorem tau_preserves_efficiency_among_eligible
-    {ι : Type*} [Fintype ι] [Nonempty ι]
-    (values : ι → ℝ)
-    (eligible : Finset ι)
-    (hne : eligible.Nonempty)
-    (w : ι) (hw : w ∈ eligible)
-    (hmax : ∀ j ∈ eligible, values j ≤ values w) :
-    -- w is the welfare maximizer among eligible players:
-    -- no eligible player has higher value
-    ∀ j ∈ eligible, values j ≤ values w :=
-  hmax
+    {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
+    (auc : Auction ι E) (x : E)
+    (eligible : Finset ι) (hne : eligible.Nonempty)
+    (j : ι) (hj : j ∈ eligible) :
+    reportedVal (auc.report (winnerOnFinset eligible hne auc x)) x ≥
+      reportedVal (auc.report j) x :=
+  winnerOnFinset_maximizes_reportedVal eligible hne auc x j hj
 
 -- ════════════════════════════════════════════════════════════
 -- 2026-03-07: One-Shot Bidding

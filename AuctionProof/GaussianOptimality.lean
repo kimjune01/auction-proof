@@ -43,7 +43,7 @@ itself (which is outside the auction's scope).
 
 ## References
 
-- Groves (1973), Thm 1: efficient choice rule = argmax of values.
+- Groves (1973): payments aligning private incentives with total welfare.
   DOI: https://doi.org/10.2307/1914085
 - Green & Laffont (1977), Thm 1: VCG is the *only* efficient DSIC mechanism.
   DOI: https://doi.org/10.2307/1914237
@@ -87,7 +87,7 @@ theorem trueVal_positive (v : Valuation E) (x : E) :
     2. Specializing to any alternative rule: trueVal(winner) ≥ trueVal(alt).
     3. integral_mono: pointwise ≥ ⟹ integral ≥ (QueryMeasure axiom).
 
-    Groves (1973), Thm 1.
+    Groves (1973).
     DOI: https://doi.org/10.2307/1914085 -/
 theorem gaussian_optimality
     (auc : Auction ι E) (μ : QueryMeasure E)

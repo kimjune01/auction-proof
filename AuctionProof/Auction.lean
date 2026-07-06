@@ -209,7 +209,7 @@ def welfareOthersWithout (auc : Auction ι E) (i : ι) (x : E) : ℝ :=
     References:
     - Clarke (1971), "Multipart Pricing of Public Goods," §3.
       DOI: https://doi.org/10.1007/BF01726210
-    - Groves (1973), "Incentives in Teams," Thm 2.
+    - Groves (1973), "Incentives in Teams."
       DOI: https://doi.org/10.2307/1914085 -/
 def vcgPayment (auc : Auction ι E) (i : ι) (x : E) : ℝ :=
   welfareOthersWithout auc i x - welfareOthersWith auc i x
