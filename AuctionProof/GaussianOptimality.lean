@@ -9,7 +9,7 @@ import AuctionProof.Strategyproof
 
 ## Main result
 
-Under Gaussian valuations in any finite-dimensional real inner product
+Under Gaussian valuations in any real inner product
 space, the VCG score-argmax allocation is as efficient as any allocation
 can be. No mechanism — not just no VCG mechanism, but no allocation rule
 whatsoever — can achieve higher expected social welfare.
@@ -101,7 +101,7 @@ theorem gaussian_optimality
 -- CAPSTONE: Weak dominance of the full configuration
 -- ============================================================
 
-/-- **Capstone theorem.** Under Gaussian valuations in any finite-dimensional
+/-- **Capstone theorem.** Under Gaussian valuations in any
     real inner product space, the transparent VCG configuration weakly
     dominates every alternative in the three senses that matter:
 

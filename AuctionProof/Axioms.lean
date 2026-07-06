@@ -60,18 +60,23 @@ variable {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
     over queries, and expected values respect pointwise ordering."
 
     No assumptions about the distribution's shape, density, support, or
-    dimension. Just "integrals exist and respect ≥."
-
-    Standard measure theory. -/
+    dimension. Just "expectations exist and respect ≥." See the note on
+    `integral_mono` for the exact scope of that quantifier. -/
 structure QueryMeasure (E : Type*) where
   /-- The integral operator: maps a real-valued function on E to its
       expected value under the query distribution. -/
   integrate : (E → ℝ) → ℝ
   /-- Monotonicity: pointwise ≥ implies integral ≥.
 
-      This is the only property of integration we use. It holds for
-      any finite positive measure (Lebesgue, Bochner, Riemann).
-      Standard measure theory. -/
+      This is the only property of integration we use. Note the scope:
+      the field quantifies over ALL functions f g, not only measurable
+      or integrable ones, so `QueryMeasure` is a total monotone
+      expectation operator (e.g. a finite weighted sum over a query log,
+      or any finitely additive expectation), not a literal Lebesgue
+      integral, which is partial. A measure-theoretic integral satisfies
+      this interface on the functions it can evaluate; downstream
+      theorems that quantify over arbitrary allocation rules inherit
+      exactly this interface's strength. -/
   integral_mono : ∀ (f g : E → ℝ), (∀ x, f x ≥ g x) → integrate f ≥ integrate g
 
 end
