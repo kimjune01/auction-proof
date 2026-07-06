@@ -4,6 +4,7 @@ title: "auction-proof: Lean 4 proofs for VCG auction properties on Gaussian embe
 authors:
   - family-names: "Kim"
     given-names: "June"
+doi: 10.5281/zenodo.21214697
 version: 2.1.0
 date-released: 2026-07-06
 license: AGPL-3.0

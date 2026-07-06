@@ -1,5 +1,7 @@
 # auction-proof
 
+[![DOI](https://zenodo.org/badge/1189850319.svg)](https://doi.org/10.5281/zenodo.21214697)
+
 Lean 4 formalization proving that VCG on Gaussian embedding auctions is maximally efficient and strategyproof. Zero sorry in the proof chain.
 
 ## The claim
