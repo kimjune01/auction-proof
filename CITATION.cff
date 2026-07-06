@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this formalization, please cite it as below."
+title: "auction-proof: Lean 4 proofs for VCG auction properties on Gaussian embedding auctions"
+authors:
+  - family-names: "Kim"
+    given-names: "June"
+version: 2.1.0
+date-released: 2026-07-06
+license: AGPL-3.0
+repository-code: "https://github.com/kimjune01/auction-proof"
+url: "https://june.kim/vector-space"
+abstract: >-
+  Machine-checked Lean 4 formalization (zero sorry) that VCG on Gaussian
+  embedding auctions is welfare-optimal, dominant-strategy incentive
+  compatible, and equilibrium-efficient. Includes the power-diagram
+  identification of the allocation rule for arbitrary heterogeneous sigmas
+  via the Aurenhammer paraboloid lift, and exact recovery of Vickrey's
+  second-price auction at a common center (the keyword special case).
+keywords:
+  - mechanism design
+  - VCG
+  - power diagrams
+  - Lean 4
+  - formal verification
+  - embedding-space advertising
