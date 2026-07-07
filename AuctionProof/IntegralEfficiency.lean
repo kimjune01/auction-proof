@@ -79,28 +79,4 @@ theorem integral_efficiency
   unfold welfareOfRule
   exact μ.integral_mono _ _ (fun x => winner_maximizes_welfare auc x htruth (rule x))
 
-/-- Corollary: if two allocation rules achieve the same expected welfare,
-    they must assign the same value at every query point (assuming the
-    winner rule is one of them).
-
-    This follows from pointwise domination + equal integrals: if f ≥ g
-    everywhere and ∫f = ∫g, then f = g everywhere.
-
-    Note: without a measure-theoretic framework, we state this as
-    pointwise equality rather than a.e. equality. The stronger a.e.
-    version would require Mathlib's measure theory.
-
-    Standard measure theory. -/
-theorem integral_efficiency_pointwise_unique
-    (auc : Auction ι E) (μ : QueryMeasure E)
-    (htruth : allTruthful auc)
-    (rule : E → ι)
-    (hequal : welfareOfRule auc (fun x => winner auc x) μ =
-              welfareOfRule auc rule μ)
-    (hstrict : ∀ (f g : E → ℝ), (∀ x, f x ≥ g x) →
-               μ.integrate f = μ.integrate g → ∀ x, f x = g x) :
-    ∀ x, trueVal (auc.valuation (winner auc x)) x =
-         trueVal (auc.valuation (rule x)) x :=
-  hstrict _ _ (fun x => winner_maximizes_welfare auc x htruth (rule x)) hequal
-
 end

@@ -1,4 +1,5 @@
 import AuctionProof.Auction
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
 
 /-!
 # Assumptions
@@ -27,7 +28,13 @@ Only the integration interface, because we dropped Mathlib's measure theory:
 
 - `QueryMeasure`: an integration operator with monotonicity.
 
-This is the sole non-definitional assumption in the proof chain.
+This is the sole non-definitional assumption in the proof chain. It is carried
+as a structure hypothesis, not a Lean `axiom`, so `#print axioms` on every
+downstream theorem reports only `propext`, `Classical.choice`, and `Quot.sound`.
+The interface is not vacuous: `QueryMeasure.dirac` and
+`QueryMeasure.ofWeightedFinset` below construct concrete instances — a point
+evaluation and a finite weighted expectation — that discharge `integral_mono`
+by proof.
 
 ## What's a hypothesis on theorems
 
@@ -78,5 +85,29 @@ structure QueryMeasure (E : Type*) where
       theorems that quantify over arbitrary allocation rules inherit
       exactly this interface's strength. -/
   integral_mono : ∀ (f g : E → ℝ), (∀ x, f x ≥ g x) → integrate f ≥ integrate g
+
+-- ============================================================
+-- CONCRETE INSTANCES
+-- The integration interface is satisfiable, not vacuous: these
+-- build QueryMeasures and discharge `integral_mono` by proof, so
+-- the downstream theorems are not quantifying over an empty class.
+-- ============================================================
+
+/-- The Dirac query measure at a single point: `integrate f = f x₀`.
+    The minimal witness that the interface is inhabited. -/
+def QueryMeasure.dirac {E : Type*} (x₀ : E) : QueryMeasure E where
+  integrate f := f x₀
+  integral_mono _ _ hfg := hfg x₀
+
+/-- A finite weighted expectation over a query log `s` with nonnegative
+    weights `w`: `integrate f = ∑ x ∈ s, w x * f x`. This is the "finite
+    weighted sum over a query log" the `QueryMeasure` docstring describes; it
+    satisfies `integral_mono` because a nonnegative-weighted sum preserves
+    pointwise ≥. -/
+def QueryMeasure.ofWeightedFinset {E : Type*} (s : Finset E) (w : E → ℝ)
+    (hw : ∀ x ∈ s, 0 ≤ w x) : QueryMeasure E where
+  integrate f := ∑ x ∈ s, w x * f x
+  integral_mono _ _ hfg :=
+    Finset.sum_le_sum fun x hx => mul_le_mul_of_nonneg_left (hfg x) (hw x hx)
 
 end

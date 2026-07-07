@@ -111,6 +111,30 @@ theorem score_sub_affine (r s : Report E) (x : E) (h : r.sigma = s.sigma) :
   field_simp
   ring
 
+/-- **Equal-sigma winner minimizes power distance.** When every advertiser
+    shares a common sigma `σ₀`, the auction winner minimizes the in-space power
+    distance (sites `cᵢ`, weights `σ₀² · log bᵢ`). So for the equal-sigma case
+    the allocation is the power-diagram cell assignment in `E` itself — no lift
+    needed, the analogue of `winner_minimizes_liftedPowerDist` for Part 2. -/
+theorem winner_minimizes_powerDist (auc : Auction ι E) (x : E) (j : ι)
+    (σ₀ : ℝ) (hσ : ∀ k, (auc.report k).sigma = σ₀) :
+    powerDist (auc.report (winner auc x)).center
+        ((auc.report (winner auc x)).sigma ^ 2 *
+          Real.log (auc.report (winner auc x)).bid) x ≤
+      powerDist (auc.report j).center
+        ((auc.report j).sigma ^ 2 * Real.log (auc.report j).bid) x := by
+  have hval := winner_maximizes_reportedVal auc x j
+  have hpos : ∀ k : ι, 0 < reportedVal (auc.report k) x := by
+    intro k
+    unfold reportedVal
+    exact mul_pos (auc.report k).bid_pos (Real.exp_pos _)
+  have hscore : score (auc.report j) x ≤ score (auc.report (winner auc x)) x := by
+    rw [score_eq_log_reportedVal, score_eq_log_reportedVal]
+    exact (Real.log_le_log_iff (hpos j) (hpos (winner auc x))).mpr hval
+  have hsig : (auc.report j).sigma = (auc.report (winner auc x)).sigma := by
+    rw [hσ j, hσ (winner auc x)]
+  exact (score_le_iff_powerDist_le (auc.report j) (auc.report (winner auc x)) x hsig).mp hscore
+
 -- ============================================================
 -- Part 2: variable sigma — power diagram in E × ℝ
 -- (Aurenhammer lift to the paraboloid)

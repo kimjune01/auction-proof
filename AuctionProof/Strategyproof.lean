@@ -78,19 +78,6 @@ theorem playerUtility_of_loser (auc : Auction ι E) (i : ι) (x : E)
 -- Argmax helpers
 -- ============================================================
 
-private theorem List.argmax_congr' {α : Type*} {β : Type*}
-    [DecidableEq α] [LinearOrder β]
-    {f g : α → β} {l : List α} (h : ∀ a ∈ l, f a = g a) :
-    l.argmax f = l.argmax g := by
-  cases hl : l.argmax f with
-  | none => rw [List.argmax_eq_none] at hl; subst hl; rfl
-  | some m =>
-    symm; rw [List.argmax_eq_some_iff]
-    rw [List.argmax_eq_some_iff] at hl
-    obtain ⟨hml, hmax, hidx⟩ := hl
-    exact ⟨hml, fun a ha => by rw [← h a ha, ← h m hml]; exact hmax a ha,
-           fun a ha hle => hidx a ha (by rw [← h m hml, ← h a ha] at hle; exact hle)⟩
-
 theorem winnerOnFinset_mem (players : Finset ι) (hplayers : players.Nonempty)
     (auc : Auction ι E) (x : E) :
     winnerOnFinset players hplayers auc x ∈ players := by
@@ -154,7 +141,7 @@ theorem welfareOthersWithout_invariant
           (winnerOnFinset (Finset.univ.erase i) h (auc.withReport i r') x)) x =
           reportedVal (auc.report
           (winnerOnFinset (Finset.univ.erase i) h (auc.withReport i r') x)) x := by
-        show reportedVal ((Function.update auc.report i r')
+        change reportedVal ((Function.update auc.report i r')
           (winnerOnFinset (Finset.univ.erase i) h (auc.withReport i r') x)) x =
           reportedVal (auc.report
           (winnerOnFinset (Finset.univ.erase i) h (auc.withReport i r') x)) x
@@ -167,7 +154,7 @@ theorem welfareOthersWithout_invariant
           (winnerOnFinset (Finset.univ.erase i) h auc x)) x =
           reportedVal (auc.report
           (winnerOnFinset (Finset.univ.erase i) h auc x)) x := by
-        show reportedVal ((Function.update auc.report i r')
+        change reportedVal ((Function.update auc.report i r')
           (winnerOnFinset (Finset.univ.erase i) h auc x)) x =
           reportedVal (auc.report
           (winnerOnFinset (Finset.univ.erase i) h auc x)) x
@@ -237,6 +224,21 @@ private theorem trueVal_le_welfareOthersWithout_of_loss
     _ ≤ reportedVal (auc.report (winner auc x)) x :=
       winner_maximizes_reportedVal auc x i
 
+/-- **Losers pay zero.** A player who does not win pays nothing: removing a
+    loser leaves the allocation among the others unchanged, so their Clarke
+    externality is zero. Paired with `vcgPayment_common_center_second_price`
+    (the winner pays the highest competing bid) this completes the Vickrey
+    picture at a keyword point — losers pay 0, the winner pays the second
+    price — making the whole payment rule explicit, not just the winner's. -/
+theorem vcgPayment_eq_zero_of_loser (auc : Auction ι E) (i : ι) (x : E)
+    (hlose : winner auc x ≠ i) :
+    vcgPayment auc i x = 0 := by
+  unfold vcgPayment welfareOthersWith welfareOthersAt
+  rw [if_neg hlose,
+    welfareOthersWithout_eq_winner_reportedVal_of_loser
+      (auc := auc) (i := i) (x := x) hlose]
+  ring
+
 -- ============================================================
 -- MAIN THEOREM: DSIC
 -- ============================================================
@@ -292,7 +294,7 @@ theorem vcg_is_nash_equilibrium
     (auc : Auction ι E) (x : E) (k : ι → ℝ)
     (htruth : allTruthful auc) :
     vcgOpenGame.isNashEquilibrium x k auc := by
-  show ∀ (i : ι) (r' : Report E),
+  change ∀ (i : ι) (r' : Report E),
     playerUtility auc i x ≥ playerUtility (auc.withReport i r') i x
   exact fun i r' => vcg_dsic auc i x r' (htruth i)
 
