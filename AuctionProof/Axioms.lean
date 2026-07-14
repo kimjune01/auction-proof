@@ -99,6 +99,33 @@ def QueryMeasure.dirac {E : Type*} (x₀ : E) : QueryMeasure E where
   integrate f := f x₀
   integral_mono _ _ hfg := hfg x₀
 
+/-- `x` has positive query weight for `μ`: a pointwise improvement which is
+    strict at `x` makes the integrated value strictly larger.  This is kept
+    separate from `QueryMeasure`, so all existing weak-order results retain
+    their original assumptions. -/
+class QueryMeasure.PositiveAt {E : Type*} (μ : QueryMeasure E) (x : E) : Prop where
+  integral_lt_of_pointwise_lt_at : ∀ (f g : E → ℝ),
+    (∀ y, f y ≤ g y) → f x < g x → μ.integrate f < μ.integrate g
+
+/-- The support point of a Dirac query measure has positive weight. -/
+instance QueryMeasure.diracPositiveAt {E : Type*} (x₀ : E) :
+    QueryMeasure.PositiveAt (QueryMeasure.dirac x₀) x₀ where
+  integral_lt_of_pointwise_lt_at _ _ _ hx := hx
+
+/-- A set of queries is detected with positive weight by `μ`: a pointwise
+    weak improvement that is strict throughout this set integrates strictly.
+    Unlike `PositiveAt`, this interface can model nonatomic distributions by
+    taking `s` to be a positive-mass neighborhood. -/
+class QueryMeasure.PositiveOn {E : Type*} (μ : QueryMeasure E) (s : Set E) : Prop where
+  integral_lt_of_pointwise_lt_on : ∀ (f g : E → ℝ),
+    (∀ x, f x ≤ g x) → (∀ x ∈ s, f x < g x) → μ.integrate f < μ.integrate g
+
+/-- Any set containing the support point has positive weight under a Dirac
+    query measure. -/
+instance QueryMeasure.diracPositiveOn {E : Type*} (x₀ : E) (s : Set E) (hx : x₀ ∈ s) :
+    QueryMeasure.PositiveOn (QueryMeasure.dirac x₀) s where
+  integral_lt_of_pointwise_lt_on _ _ _ hstrict := hstrict x₀ hx
+
 /-- A finite weighted expectation over a query log `s` with nonnegative
     weights `w`: `integrate f = ∑ x ∈ s, w x * f x`. This is the "finite
     weighted sum over a query log" the `QueryMeasure` docstring describes; it

@@ -276,6 +276,134 @@ theorem vcg_dsic
     rw [playerUtility_eq_zero_of_loser (auc := auc.withReport i r') (i := i) (x := x) hDev]
 
 -- ============================================================
+-- STRICT DSIC UNDER COMPETITION
+-- ============================================================
+
+/-- If truthful reporting wins a query, a deviation loses it, and the
+    truthful value strictly clears the best rival welfare, the deviation
+    strictly lowers utility at that query. -/
+theorem vcg_strict_at_contested_point
+    (auc : Auction ι E) (i : ι) (x : E) (r' : Report E)
+    (hTruth : winner auc x = i)
+    (hDev : winner (auc.withReport i r') x ≠ i)
+    (hmargin : welfareOthersWithout auc i x < trueVal (auc.valuation i) x) :
+    playerUtility (auc.withReport i r') i x < playerUtility auc i x := by
+  rw [playerUtility_of_winner (auc := auc) (i := i) (x := x) hTruth]
+  rw [playerUtility_eq_zero_of_loser
+    (auc := auc.withReport i r') (i := i) (x := x) hDev]
+  exact sub_pos.mpr hmargin
+
+/-- Expected utility under a query measure. -/
+def expectedPlayerUtility (auc : Auction ι E) (i : ι) (μ : QueryMeasure E) : ℝ :=
+  μ.integrate (playerUtility auc i)
+
+/-- A strict utility loss at a positive-weight contested query lifts to a
+    strict expected-utility loss. -/
+theorem vcg_strict_expected_at_contested_point
+    (auc : Auction ι E) (i : ι) (x : E) (r' : Report E) (μ : QueryMeasure E)
+    [QueryMeasure.PositiveAt μ x]
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (hTruth : winner auc x = i)
+    (hDev : winner (auc.withReport i r') x ≠ i)
+    (hmargin : welfareOthersWithout auc i x < trueVal (auc.valuation i) x) :
+    expectedPlayerUtility (auc.withReport i r') i μ < expectedPlayerUtility auc i μ := by
+  exact QueryMeasure.PositiveAt.integral_lt_of_pointwise_lt_at
+    (self := inferInstance)
+    (playerUtility (auc.withReport i r') i) (playerUtility auc i)
+    (fun y => vcg_dsic auc i y r' hi)
+    (vcg_strict_at_contested_point auc i x r' hTruth hDev hmargin)
+
+/-- If a deviation forfeits truthful wins with a strict competitive margin
+    throughout a positive-weight query region, truthful expected utility is
+    strictly larger.  This is the nonatomic counterpart of the point theorem. -/
+theorem vcg_strict_expected_on_contested_set
+    (auc : Auction ι E) (i : ι) (r' : Report E) (μ : QueryMeasure E) (s : Set E)
+    [QueryMeasure.PositiveOn μ s]
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (hTruth : ∀ x ∈ s, winner auc x = i)
+    (hDev : ∀ x ∈ s, winner (auc.withReport i r') x ≠ i)
+    (hmargin : ∀ x ∈ s,
+      welfareOthersWithout auc i x < trueVal (auc.valuation i) x) :
+    expectedPlayerUtility (auc.withReport i r') i μ < expectedPlayerUtility auc i μ := by
+  exact QueryMeasure.PositiveOn.integral_lt_of_pointwise_lt_on
+    (self := inferInstance)
+    (playerUtility (auc.withReport i r') i) (playerUtility auc i)
+    (fun x => vcg_dsic auc i x r' hi)
+    (fun x hx => vcg_strict_at_contested_point auc i x r'
+      (hTruth x hx) (hDev x hx) (hmargin x hx))
+
+/-- Dirac specialization: a contested point by itself witnesses strict
+    expected dominance. -/
+theorem vcg_strict_expected_dirac
+    (auc : Auction ι E) (i : ι) (x : E) (r' : Report E)
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (hTruth : winner auc x = i)
+    (hDev : winner (auc.withReport i r') x ≠ i)
+    (hmargin : welfareOthersWithout auc i x < trueVal (auc.valuation i) x) :
+    expectedPlayerUtility (auc.withReport i r') i (QueryMeasure.dirac x) <
+      expectedPlayerUtility auc i (QueryMeasure.dirac x) := by
+  exact vcg_strict_expected_at_contested_point auc i x r' (QueryMeasure.dirac x)
+    hi hTruth hDev hmargin
+
+/-- At a query whose strict inequalities are detected by `μ`, an
+    expected-utility tie forces the deviation to preserve whether player `i`
+    wins.  This local form avoids requiring every point of a continuous query
+    space to carry positive atomic weight. -/
+theorem expected_utility_tie_implies_allocation_tie_at
+    (auc : Auction ι E) (i : ι) (r' : Report E) (μ : QueryMeasure E)
+    (x : E) [QueryMeasure.PositiveAt μ x]
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (hmargin : trueVal (auc.valuation i) x ≠ welfareOthersWithout auc i x)
+    (heq : expectedPlayerUtility (auc.withReport i r') i μ =
+      expectedPlayerUtility auc i μ) :
+    winner (auc.withReport i r') x = i ↔ winner auc x = i := by
+  constructor
+  · intro hDev
+    by_contra hTruth
+    have hle := trueVal_le_welfareOthersWithout_of_loss auc i x hi hTruth
+    have hlt : trueVal (auc.valuation i) x < welfareOthersWithout auc i x :=
+      lt_of_le_of_ne hle hmargin
+    have hpoint : playerUtility (auc.withReport i r') i x < playerUtility auc i x := by
+      rw [playerUtility_eq_zero_of_loser (auc := auc) (i := i) (x := x) hTruth]
+      rw [playerUtility_of_winner
+        (auc := auc.withReport i r') (i := i) (x := x) hDev]
+      rw [welfareOthersWithout_invariant]
+      exact sub_neg.mpr hlt
+    have hstrict : expectedPlayerUtility (auc.withReport i r') i μ <
+        expectedPlayerUtility auc i μ :=
+      QueryMeasure.PositiveAt.integral_lt_of_pointwise_lt_at
+        (self := inferInstance)
+        (playerUtility (auc.withReport i r') i) (playerUtility auc i)
+        (fun y => vcg_dsic auc i y r' hi) hpoint
+    exact (ne_of_lt hstrict) heq
+  · intro hTruth
+    by_contra hDev
+    have hle := welfareOthersWithout_le_trueVal_of_win auc i x hi hTruth
+    have hmargin : welfareOthersWithout auc i x < trueVal (auc.valuation i) x :=
+      lt_of_le_of_ne hle (Ne.symm hmargin)
+    have hstrict := vcg_strict_expected_at_contested_point
+      auc i x r' μ hi hTruth hDev hmargin
+    exact (ne_of_lt hstrict) heq
+
+/-- Strong discrete/full-detection specialization of
+    `expected_utility_tie_implies_allocation_tie_at`.  For nonatomic query
+    distributions, use the local theorem (or a future almost-everywhere
+    interface) instead of assuming `PositiveAt` at every point. -/
+theorem truthful_unique_maximizer_up_to_allocation
+    (auc : Auction ι E) (i : ι) (r' : Report E) (μ : QueryMeasure E)
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (hpositive : ∀ x, QueryMeasure.PositiveAt μ x)
+    (hcoverage : ∀ x,
+      trueVal (auc.valuation i) x ≠ welfareOthersWithout auc i x)
+    (heq : expectedPlayerUtility (auc.withReport i r') i μ =
+      expectedPlayerUtility auc i μ) :
+    ∀ x, winner (auc.withReport i r') x = i ↔ winner auc x = i := by
+  intro x
+  letI := hpositive x
+  exact expected_utility_tie_implies_allocation_tie_at
+    auc i r' μ x hi (hcoverage x) heq
+
+-- ============================================================
 -- Nash as corollary of DSIC
 -- ============================================================
 

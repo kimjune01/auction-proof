@@ -3,6 +3,7 @@ import AuctionProof.Auction
 import AuctionProof.Axioms
 import AuctionProof.Efficiency
 import AuctionProof.Strategyproof
+import AuctionProof.CompetitionIdentification
 import AuctionProof.IntegralEfficiency
 import AuctionProof.OpenGame
 import AuctionProof.GaussianOptimality
