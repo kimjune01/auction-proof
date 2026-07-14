@@ -137,4 +137,31 @@ def QueryMeasure.ofWeightedFinset {E : Type*} (s : Finset E) (w : E → ℝ)
   integral_mono _ _ hfg :=
     Finset.sum_le_sum fun x hx => mul_le_mul_of_nonneg_left (hfg x) (hw x hx)
 
+/-- A logged query with strictly positive weight is detected by the finite
+    weighted expectation. -/
+@[reducible] def QueryMeasure.ofWeightedFinsetPositiveAt {E : Type*}
+    (s : Finset E) (w : E → ℝ)
+    (hw : ∀ x ∈ s, 0 ≤ w x) (x₀ : E) (hx₀ : x₀ ∈ s) (hw₀ : 0 < w x₀) :
+    QueryMeasure.PositiveAt (QueryMeasure.ofWeightedFinset s w hw) x₀ where
+  integral_lt_of_pointwise_lt_at f g hle hlt := by
+    change (∑ x ∈ s, w x * f x) < ∑ x ∈ s, w x * g x
+    apply Finset.sum_lt_sum
+    · intro x hx
+      exact mul_le_mul_of_nonneg_left (hle x) (hw x hx)
+    · exact ⟨x₀, hx₀, mul_lt_mul_of_pos_left hlt hw₀⟩
+
+/-- A finite query region has positive weight when it contains a logged query
+    whose weight is strictly positive. -/
+@[reducible] def QueryMeasure.ofWeightedFinsetPositiveOn {E : Type*}
+    (s : Finset E) (w : E → ℝ)
+    (hw : ∀ x ∈ s, 0 ≤ w x) (t : Set E) (x₀ : E)
+    (hxs : x₀ ∈ s) (hxt : x₀ ∈ t) (hw₀ : 0 < w x₀) :
+    QueryMeasure.PositiveOn (QueryMeasure.ofWeightedFinset s w hw) t where
+  integral_lt_of_pointwise_lt_on f g hle hstrict := by
+    change (∑ x ∈ s, w x * f x) < ∑ x ∈ s, w x * g x
+    apply Finset.sum_lt_sum
+    · intro x hx
+      exact mul_le_mul_of_nonneg_left (hle x) (hw x hx)
+    · exact ⟨x₀, hxs, mul_lt_mul_of_pos_left (hstrict x₀ hxt) hw₀⟩
+
 end

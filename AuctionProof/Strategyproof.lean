@@ -293,6 +293,32 @@ theorem vcg_strict_at_contested_point
     (auc := auc.withReport i r') (i := i) (x := x) hDev]
   exact sub_pos.mpr hmargin
 
+/-- At a non-tie query, any deviation that changes whether player `i` wins is
+    strictly worse than a truthful report. -/
+theorem vcg_strict_of_allocation_change
+    (auc : Auction ι E) (i : ι) (x : E) (r' : Report E)
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (hchange : ¬ (winner (auc.withReport i r') x = i ↔ winner auc x = i))
+    (hmargin : trueVal (auc.valuation i) x ≠ welfareOthersWithout auc i x) :
+    playerUtility (auc.withReport i r') i x < playerUtility auc i x := by
+  by_cases hTruth : winner auc x = i
+  · have hDev : winner (auc.withReport i r') x ≠ i := by
+      intro hDev
+      exact hchange ⟨fun _ => hTruth, fun _ => hDev⟩
+    apply vcg_strict_at_contested_point auc i x r' hTruth hDev
+    have hle := welfareOthersWithout_le_trueVal_of_win auc i x hi hTruth
+    exact lt_of_le_of_ne hle (Ne.symm hmargin)
+  · have hDev : winner (auc.withReport i r') x = i := by
+      by_contra hDev
+      exact hchange ⟨fun h => (hDev h).elim, fun h => (hTruth h).elim⟩
+    rw [playerUtility_eq_zero_of_loser (auc := auc) (i := i) (x := x) hTruth]
+    rw [playerUtility_of_winner
+      (auc := auc.withReport i r') (i := i) (x := x) hDev]
+    rw [welfareOthersWithout_invariant]
+    apply sub_neg.mpr
+    have hle := trueVal_le_welfareOthersWithout_of_loss auc i x hi hTruth
+    exact lt_of_le_of_ne hle hmargin
+
 /-- Expected utility under a query measure. -/
 def expectedPlayerUtility (auc : Auction ι E) (i : ι) (μ : QueryMeasure E) : ℝ :=
   μ.integrate (playerUtility auc i)
@@ -331,6 +357,64 @@ theorem vcg_strict_expected_on_contested_set
     (fun x => vcg_dsic auc i x r' hi)
     (fun x hx => vcg_strict_at_contested_point auc i x r'
       (hTruth x hx) (hDev x hx) (hmargin x hx))
+
+/-- If allocation changes throughout a positive-weight region away from
+    competitive ties, the deviation has strictly lower expected utility. -/
+theorem vcg_strict_expected_on_allocation_change_set
+    (auc : Auction ι E) (i : ι) (r' : Report E) (μ : QueryMeasure E) (s : Set E)
+    [QueryMeasure.PositiveOn μ s]
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (hchange : ∀ x ∈ s,
+      ¬ (winner (auc.withReport i r') x = i ↔ winner auc x = i))
+    (hmargin : ∀ x ∈ s,
+      trueVal (auc.valuation i) x ≠ welfareOthersWithout auc i x) :
+    expectedPlayerUtility (auc.withReport i r') i μ < expectedPlayerUtility auc i μ := by
+  exact QueryMeasure.PositiveOn.integral_lt_of_pointwise_lt_on
+    (self := inferInstance)
+    (playerUtility (auc.withReport i r') i) (playerUtility auc i)
+    (fun x => vcg_dsic auc i x r' hi)
+    (fun x hx => vcg_strict_of_allocation_change
+      auc i x r' hi (hchange x hx) (hmargin x hx))
+
+/-- Therefore an expected-utility tie cannot disagree with truthful allocation
+    throughout any positive-weight region having nonzero competitive margins. -/
+theorem expected_utility_tie_forbids_allocation_change_set
+    (auc : Auction ι E) (i : ι) (r' : Report E) (μ : QueryMeasure E) (s : Set E)
+    [QueryMeasure.PositiveOn μ s]
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (hmargin : ∀ x ∈ s,
+      trueVal (auc.valuation i) x ≠ welfareOthersWithout auc i x)
+    (heq : expectedPlayerUtility (auc.withReport i r') i μ =
+      expectedPlayerUtility auc i μ) :
+    ¬ ∀ x ∈ s, ¬ (winner (auc.withReport i r') x = i ↔ winner auc x = i) := by
+  intro hchange
+  have hstrict := vcg_strict_expected_on_allocation_change_set
+    auc i r' μ s hi hchange hmargin
+  exact (ne_of_lt hstrict) heq
+
+/-- Queries where the deviation changes player `i`'s allocation away from a
+    competitive tie. -/
+def strictlyContestedAllocationDisagreement
+    (auc : Auction ι E) (i : ι) (r' : Report E) : Set E :=
+  {x | ¬ (winner (auc.withReport i r') x = i ↔ winner auc x = i) ∧
+    trueVal (auc.valuation i) x ≠ welfareOthersWithout auc i x}
+
+/-- An expected-utility tie implies that the strictly contested allocation-
+    disagreement set cannot have positive query weight.  This is the abstract
+    interface's analogue of allocation equivalence almost everywhere. -/
+theorem expected_utility_tie_disagreement_not_positive
+    (auc : Auction ι E) (i : ι) (r' : Report E) (μ : QueryMeasure E)
+    (hi : isTruthful (auc.report i) (auc.valuation i))
+    (heq : expectedPlayerUtility (auc.withReport i r') i μ =
+      expectedPlayerUtility auc i μ) :
+    ¬ QueryMeasure.PositiveOn μ (strictlyContestedAllocationDisagreement auc i r') := by
+  intro hpositive
+  letI := hpositive
+  apply expected_utility_tie_forbids_allocation_change_set
+    auc i r' μ (strictlyContestedAllocationDisagreement auc i r') hi
+    (fun x hx => hx.2) heq
+  intro x hx
+  exact hx.1
 
 /-- Dirac specialization: a contested point by itself witnesses strict
     expected dominance. -/
@@ -402,6 +486,30 @@ theorem truthful_unique_maximizer_up_to_allocation
   letI := hpositive x
   exact expected_utility_tie_implies_allocation_tie_at
     auc i r' μ x hi (hcoverage x) heq
+
+/-- In a one-player market every report gives the player the same pointwise
+    utility.  This witnesses why competition is necessary for strictness. -/
+theorem playerUtility_invariant_of_subsingleton [Subsingleton ι]
+    (auc : Auction ι E) (i : ι) (x : E) (r' : Report E) :
+    playerUtility (auc.withReport i r') i x = playerUtility auc i x := by
+  have hTruth : winner auc x = i := Subsingleton.elim _ _
+  have hDev : winner (auc.withReport i r') x = i := Subsingleton.elim _ _
+  rw [playerUtility_of_winner (auc := auc) (i := i) (x := x) hTruth]
+  rw [playerUtility_of_winner
+    (auc := auc.withReport i r') (i := i) (x := x) hDev]
+  rw [welfareOthersWithout_invariant]
+  change trueVal (auc.valuation i) x - welfareOthersWithout auc i x =
+    trueVal (auc.valuation i) x - welfareOthersWithout auc i x
+  rfl
+
+/-- Consequently every report also ties in expected utility in a one-player
+    market, for every `QueryMeasure`. -/
+theorem expectedPlayerUtility_invariant_of_subsingleton [Subsingleton ι]
+    (auc : Auction ι E) (i : ι) (r' : Report E) (μ : QueryMeasure E) :
+    expectedPlayerUtility (auc.withReport i r') i μ = expectedPlayerUtility auc i μ := by
+  apply congrArg μ.integrate
+  funext x
+  exact playerUtility_invariant_of_subsingleton auc i x r'
 
 -- ============================================================
 -- Nash as corollary of DSIC
