@@ -5,8 +5,8 @@ authors:
   - family-names: "Kim"
     given-names: "June"
 doi: 10.5281/zenodo.21214697
-version: 2.1.0
-date-released: 2026-07-06
+version: 2.2.0
+date-released: 2026-07-14
 license: AGPL-3.0
 repository-code: "https://github.com/kimjune01/auction-proof"
 url: "https://june.kim/vector-space"
@@ -17,6 +17,10 @@ abstract: >-
   identification of the allocation rule for arbitrary heterogeneous sigmas
   via the Aurenhammer paraboloid lift, and exact recovery of Vickrey's
   second-price auction at a common center (the keyword special case).
+  Version 2.2 adds strict incentive results under competition and an
+  exact center-identification theorem: competitors probing query
+  directions that span the embedding pin an advertiser's reported center
+  to its true value.
 keywords:
   - mechanism design
   - VCG
