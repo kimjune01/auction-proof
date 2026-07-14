@@ -101,3 +101,107 @@ theorem maximizing_centers_converge_as_competitors_pile_on
     constraint cStar chosen hchosen hcoverage
 
 end
+
+/-!
+## Discharging the coverage hypothesis
+
+The section above is deliberately abstract: it proves convergence *given* that
+competition shrinks the indifference classes.  Here that coverage claim is
+discharged, not assumed.  The reported center enters `score` only through
+`‖x - center‖²`, so holding bid and spread fixed, two centers give player `i`
+the same score at query `y` exactly when they are equidistant from `y`.  A
+competitor sits on that win/lose boundary, so each competitor contributes one
+score-indifference constraint.  Enough competitors probing independent
+directions force the reported center to equal the true one exactly.
+-/
+
+section Identification
+
+open Filter
+open scoped RealInnerProductSpace
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]
+variable {κ : Type*}
+
+/-- Player `i`'s score at query `y` is unchanged by reporting center `c` instead
+    of `cStar` (bid and spread fixed) exactly when `c` and `cStar` are
+    equidistant from `y`.  A competitor located at `y` pins down this constraint:
+    it is where the win/lose boundary sits, so preserving `i`'s score at `y`
+    preserves the allocation there. -/
+def scoreIndifferent (cStar c y : F) : Prop := ‖y - c‖ = ‖y - cStar‖
+
+/-- Two score-indifference constraints, at base query `y₀` and probe query `y`,
+    force the center displacement `cStar - c` orthogonal to the probe
+    displacement `y - y₀`. -/
+theorem inner_probe_eq_zero {cStar c y₀ y : F}
+    (h0 : scoreIndifferent cStar c y₀) (hy : scoreIndifferent cStar c y) :
+    ⟪y - y₀, cStar - c⟫ = 0 := by
+  have e0 : ‖y₀ - c‖ ^ 2 = ‖y₀ - cStar‖ ^ 2 := by rw [h0]
+  have ey : ‖y - c‖ ^ 2 = ‖y - cStar‖ ^ 2 := by rw [hy]
+  rw [norm_sub_sq_real, norm_sub_sq_real] at e0 ey
+  rw [inner_sub_left, inner_sub_right, inner_sub_right]
+  linarith [e0, ey]
+
+/-- **Competition identifies the reported center.**  If player `i` stays
+    score-indifferent to the truthful center `cStar` at a base query `y₀` and at
+    a family of probe queries whose displacements `probe k - y₀` span the whole
+    embedding space, then the only center consistent with every constraint is
+    `cStar` itself.  Enough competitors probing enough independent directions
+    pin the reported center exactly — the coverage hypothesis of the abstract
+    section is now a theorem, not an assumption. -/
+theorem center_identified_of_spanning_probes
+    (cStar c y₀ : F) (probe : κ → F)
+    (h0 : scoreIndifferent cStar c y₀)
+    (hprobe : ∀ k, scoreIndifferent cStar c (probe k))
+    (hspan : Submodule.span ℝ (Set.range (fun k => probe k - y₀)) = ⊤) :
+    c = cStar := by
+  set w := cStar - c with hw
+  have hortho : ∀ v ∈ Submodule.span ℝ (Set.range (fun k => probe k - y₀)),
+      ⟪v, w⟫ = 0 := by
+    intro v hv
+    induction hv using Submodule.span_induction with
+    | mem x hx =>
+        obtain ⟨k, rfl⟩ := hx
+        exact inner_probe_eq_zero h0 (hprobe k)
+    | zero => simp
+    | add x y _ _ ihx ihy => rw [inner_add_left, ihx, ihy, add_zero]
+    | smul a x _ ih => rw [real_inner_smul_left, ih, mul_zero]
+  have hself : ⟪w, w⟫ = 0 := by
+    apply hortho
+    rw [hspan]; exact Submodule.mem_top
+  have hzero : w = 0 := inner_self_eq_zero.mp hself
+  rw [hw, sub_eq_zero] at hzero
+  exact hzero.symm
+
+/-- The exact identification collapses the concrete indifference class to a
+    singleton: the centers score-indifferent to `cStar` at `y₀` and along a
+    spanning probe family are exactly `{cStar}`. -/
+theorem indifferent_centers_eq_singleton
+    (cStar y₀ : F) (probe : κ → F)
+    (hspan : Submodule.span ℝ (Set.range (fun k => probe k - y₀)) = ⊤) :
+    {c | scoreIndifferent cStar c y₀ ∧ ∀ k, scoreIndifferent cStar c (probe k)}
+      = {cStar} := by
+  ext c
+  simp only [Set.mem_setOf_eq, Set.mem_singleton_iff]
+  constructor
+  · rintro ⟨h0, hp⟩
+    exact center_identified_of_spanning_probes cStar c y₀ probe h0 hp hspan
+  · rintro rfl
+    exact ⟨rfl, fun _ => rfl⟩
+
+/-- Convergence with the coverage hypothesis discharged: if every selected
+    center satisfies the score-indifference constraints along a spanning probe
+    family, the selection is constantly `cStar`, hence converges to it. -/
+theorem centers_converge_of_spanning_identification
+    (cStar y₀ : F) (probe : κ → F) (chosen : ℕ → F)
+    (hspan : Submodule.span ℝ (Set.range (fun k => probe k - y₀)) = ⊤)
+    (hchosen : ∀ n, scoreIndifferent cStar (chosen n) y₀ ∧
+      ∀ k, scoreIndifferent cStar (chosen n) (probe k)) :
+    Tendsto chosen atTop (nhds cStar) := by
+  have hconst : chosen = fun _ => cStar :=
+    funext fun n => center_identified_of_spanning_probes cStar (chosen n) y₀ probe
+      (hchosen n).1 (hchosen n).2 hspan
+  rw [hconst]
+  exact tendsto_const_nhds
+
+end Identification
